@@ -34,6 +34,7 @@ void draw_key_label(painter_device_t surface, int x, int y, const char* label) {
     if (font_3x5_handle == NULL) {
         font_3x5_handle = qp_load_font_mem(font_3x5);
     }
+
     const painter_font_handle_t font_handle =
         (label && label[0] && !label[1]) ? font_9x12_handle : // 1 char
         (label && label[0] && label[1] && !label[2]) ? font_9x12_handle : // 2 chars
@@ -53,20 +54,39 @@ void draw_key_label(painter_device_t surface, int x, int y, const char* label) {
     qp_drawtext_recolor(surface, text_x, text_y, font_handle, label, HSV_WHITE, HSV_BLACK);
 }
 
+// Function to draw a complete key (clear, label, border)
+void draw_key(painter_device_t surface, int x, int y, const char* label) {
+    // Clear the rectangle
+    qp_rect(surface, x, y, x + square_width, y + square_height, HSV_BLACK, 1);
+
+    // Draw the label
+    draw_key_label(surface, x, y, label);
+
+    // Draw the border
+    qp_rect(surface, x, y, x + square_width, y + square_height, BORDER_COLOR, 0);
+}
+
 // Function to draw a 3x5 grid layout
 void draw_layout_grid(painter_device_t surface, int x, int y, bool mirrored, const char* keymap[5][6]) {
     const int columns = 6;
     const int rows = 3;
 
+    // For right side (mirrored = false), adjust the x offset to position correctly
+    int x_offset = x;
+    if (!mirrored) {
+        // Right side should be positioned to show correct physical layout
+        // Based on the layout, right side keys start at x=8.5, so we need to adjust
+        x_offset = x + 2; // Adjust this value to position correctly
+    }
+
     for (int col = 0; col < columns; col++) {
         int actual_col = mirrored ? (columns - 1 - col) : col;
-        int col_x = x + (actual_col * square_width);
+        int col_x = x_offset + (actual_col * square_width);
         int col_y = y + offsets[col];
 
         for (int row = 0; row < rows; row++) {
             int square_y = col_y + (row * square_height);
-            draw_key_label(surface, col_x, square_y, keymap[row][actual_col]);
-            qp_rect(surface, col_x, square_y, col_x + square_width, square_y + square_height, BORDER_COLOR, 0);
+            draw_key(surface, col_x, square_y, keymap[row][actual_col]);
         }
     }
 
@@ -74,20 +94,18 @@ void draw_layout_grid(painter_device_t surface, int x, int y, bool mirrored, con
     const int thumb_row_offset = 4;
     for (int col = 0; col < 2; col++) {
         int actual_col = mirrored ? (columns - 1 - col) : col; // Reverse order when mirrored
-        int col_x = x + (actual_col * square_width);
+        int col_x = x_offset + (actual_col * square_width);
         for (int row = 0; row < 2; row++) {
             int square_y = y + rows * square_height + thumb_offsets[col] + (row * square_height) + thumb_row_offset;
-            draw_key_label(surface, col_x, square_y, keymap[row + 3][actual_col]);
-            qp_rect(surface, col_x, square_y, col_x + square_width, square_y + square_height, BORDER_COLOR, 0);
+            draw_key(surface, col_x, square_y, keymap[row + 3][actual_col]);
         }
     }
 
     // Rest of thumb buttons
     for (int col = 2; col < 5; col++) {
         int actual_col = mirrored ? (columns - 1 - col) : col; // Reverse order when mirrored
-        int col_x = x + (actual_col * square_width);
+        int col_x = x_offset + (actual_col * square_width);
         int square_y = y + rows * square_height + thumb_offsets[col] + square_height + thumb_row_offset;
-        qp_rect(surface, col_x, square_y, col_x + square_width, square_y + square_height, BORDER_COLOR, 0);
-        draw_key_label(surface, col_x, square_y, keymap[4][actual_col]);
+        draw_key(surface, col_x, square_y, keymap[4][actual_col]);
     }
 }

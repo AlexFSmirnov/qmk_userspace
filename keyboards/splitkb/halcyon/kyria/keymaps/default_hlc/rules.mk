@@ -12,3 +12,5 @@ SRC += fonts/5x7.qff.c
 SRC += fonts/9x12.qff.c
 SRC += fonts/12x20.qff.c
 SRC += display/draw_layout.c
+SRC += display/keymap_display.c
+SRC += keycode_strings.c
