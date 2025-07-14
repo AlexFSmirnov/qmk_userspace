@@ -22,7 +22,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             case KC_SLSH:
                 if (record->event.pressed) {
-                    rgb_matrix_mode(RGB_MATRIX_TYPING_HEATMAP);
+                    rgb_matrix_mode(RGB_MATRIX_CUSTOM_REACTIVE_WHITE);
                 }
                 return false;
         }

@@ -75,9 +75,24 @@ static painter_image_handle_t get_icon_for_label(const char* label) {
 }
 
 // Function to draw a key label at the specified position
-void draw_key_label(painter_device_t surface, int x, int y, const char* label) {
+void draw_key_label(painter_device_t surface, int x, int y, int row, int col, const char* label) {
     // Initialize icons if needed
     init_icons();
+
+    hsv_t hsv = rgb_matrix_config.hsv;
+
+    uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
+    if (active_layer != 0) {
+        if (row < 3) {
+            if ((col % 4) >= 2) {
+                hsv.s = 0;
+            }
+        } else {
+            if ((col % 4) < 2) {
+                hsv.s = 0;
+            }
+        }
+    }
 
     // Check if this label should be drawn as an icon
     painter_image_handle_t icon = get_icon_for_label(label);
@@ -87,7 +102,7 @@ void draw_key_label(painter_device_t surface, int x, int y, const char* label) {
         int icon_y = y + (square_height - 16) / 2;  // (20 - 16) / 2 = 2
 
         // Draw the icon with white color and black background
-        qp_drawimage_recolor(surface, icon_x, icon_y, icon, HSV_WHITE, HSV_BLACK);
+        qp_drawimage_recolor(surface, icon_x, icon_y, icon, hsv.h, hsv.s, 255, HSV_BLACK);
         return;
     }
 
@@ -122,16 +137,16 @@ void draw_key_label(painter_device_t surface, int x, int y, const char* label) {
     int text_y = y + (square_height - text_height) / 2 + 1;
 
     // Draw the text
-    qp_drawtext_recolor(surface, text_x, text_y, font_handle, label, HSV_WHITE, HSV_BLACK);
+    qp_drawtext_recolor(surface, text_x, text_y, font_handle, label, hsv.h, hsv.s, 255, HSV_BLACK);
 }
 
 // Function to draw a complete key (clear, label, border)
-void draw_key(painter_device_t surface, int x, int y, const char* label) {
+void draw_key(painter_device_t surface, int x, int y, int row, int col, const char* label) {
     // Clear the rectangle
     qp_rect(surface, x, y, x + square_width, y + square_height, HSV_BLACK, 1);
 
     // Draw the label
-    draw_key_label(surface, x, y, label);
+    draw_key_label(surface, x, y, row, col, label);
 
     // Draw the border
     qp_rect(surface, x, y, x + square_width, y + square_height, BORDER_COLOR, 0);
@@ -157,18 +172,18 @@ void draw_layout_grid(painter_device_t surface, int x, int y, bool mirrored, con
 
         for (int row = 0; row < rows; row++) {
             int square_y = col_y + (row * square_height);
-            draw_key(surface, col_x, square_y, keymap[row][actual_col]);
+            draw_key(surface, col_x, square_y, row, actual_col, keymap[row][actual_col]);
         }
     }
 
     // Thumb square buttons
-    const int thumb_row_offset = 4;
+    const int thumb_row_offset = 8;
     for (int col = 0; col < 2; col++) {
         int actual_col = mirrored ? (columns - 1 - col) : col; // Reverse order when mirrored
         int col_x = x_offset + (actual_col * square_width);
         for (int row = 0; row < 2; row++) {
             int square_y = y + rows * square_height + thumb_offsets[col] + (row * square_height) + thumb_row_offset;
-            draw_key(surface, col_x, square_y, keymap[row + 3][actual_col]);
+            draw_key(surface, col_x, square_y, row + 3, actual_col, keymap[row + 3][actual_col]);
         }
     }
 
@@ -177,6 +192,6 @@ void draw_layout_grid(painter_device_t surface, int x, int y, bool mirrored, con
         int actual_col = mirrored ? (columns - 1 - col) : col; // Reverse order when mirrored
         int col_x = x_offset + (actual_col * square_width);
         int square_y = y + rows * square_height + thumb_offsets[col] + square_height + thumb_row_offset;
-        draw_key(surface, col_x, square_y, keymap[4][actual_col]);
+        draw_key(surface, col_x, square_y, 4, actual_col, keymap[4][actual_col]);
     }
 }

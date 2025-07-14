@@ -93,7 +93,7 @@ void draw_keymap_layout(painter_device_t surface) {
 
     // Draw the layout grid with the actual keymap
     draw_layout_grid(surface, 0, 0, true, left_keymap);
-    draw_layout_grid(surface, 0, 125, false, right_keymap);
+    draw_layout_grid(surface, 0, 117, false, right_keymap);
 }
 
 bool should_redraw_keymap(layer_state_t last_layer_state, uint8_t last_default_layer) {
