@@ -23,3 +23,5 @@ SRC += display/images/icons/tab.qgf.c
 SRC += display/images/icons/space.qgf.c
 SRC += display/images/icons/shift.qgf.c
 SRC += display/images/icons/enter.qgf.c
+
+RGB_MATRIX_CUSTOM_USER = yes
