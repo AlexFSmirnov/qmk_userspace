@@ -1,9 +1,9 @@
 #include "qp.h"
-#include "draw_layout.h"
-#include "fonts/3x5.qff.h"
-#include "fonts/4x7.qff.h"
-#include "fonts/5x7.qff.h"
-#include "fonts/9x12.qff.h"
+#include "draw_keymap.h"
+#include "../fonts/3x5.qff.h"
+#include "../fonts/4x7.qff.h"
+#include "../fonts/5x7.qff.h"
+#include "../fonts/9x12.qff.h"
 
 #define BORDER_COLOR 0, 0, 100
 

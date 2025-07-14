@@ -1,10 +1,6 @@
-#include "qp.h"
-#include "quantum.h"
+#include "process_keymap.h"
 #include "keycode_strings.h"
-#include "hlc_tft_display/hlc_tft_display.h"
-#include "qp_surface.h"
-#include "display/draw_layout.h"
-#include "display/keymap_display.h"
+#include "draw_keymap.h"
 
 // Include the keymap data
 extern const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS];
