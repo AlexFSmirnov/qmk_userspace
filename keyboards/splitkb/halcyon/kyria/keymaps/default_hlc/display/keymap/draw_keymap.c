@@ -4,6 +4,11 @@
 #include "../fonts/4x7.qff.h"
 #include "../fonts/5x7.qff.h"
 #include "../fonts/9x12.qff.h"
+#include "../images/icons/backspace.qgf.h"
+#include "../images/icons/tab.qgf.h"
+#include "../images/icons/space.qgf.h"
+#include "../images/icons/shift.qgf.h"
+#include "../images/icons/enter.qgf.h"
 
 #define BORDER_COLOR 0, 0, 100
 
@@ -19,8 +24,74 @@ static painter_font_handle_t font_5x7_handle = NULL;
 static painter_font_handle_t font_4x7_handle = NULL;
 static painter_font_handle_t font_3x5_handle = NULL;
 
+// Icon handles
+static painter_image_handle_t backspace_icon = NULL;
+static painter_image_handle_t tab_icon = NULL;
+static painter_image_handle_t space_icon = NULL;
+static painter_image_handle_t shift_icon = NULL;
+static painter_image_handle_t enter_icon = NULL;
+
+// Function to initialize icons if not already loaded
+static void init_icons(void) {
+    if (backspace_icon == NULL) {
+        backspace_icon = qp_load_image_mem(gfx_backspace);
+    }
+    if (tab_icon == NULL) {
+        tab_icon = qp_load_image_mem(gfx_tab);
+    }
+    if (space_icon == NULL) {
+        space_icon = qp_load_image_mem(gfx_space);
+    }
+    if (shift_icon == NULL) {
+        shift_icon = qp_load_image_mem(gfx_shift);
+    }
+    if (enter_icon == NULL) {
+        enter_icon = qp_load_image_mem(gfx_enter);
+    }
+}
+
+// Function to check if label is an icon and return the appropriate icon handle
+static painter_image_handle_t get_icon_for_label(const char* label) {
+    if (!label) return NULL;
+
+    // Check for common icon label variations
+    if (strcmp(label, "BKSP") == 0 || strcmp(label, "BACKSPACE") == 0 || strcmp(label, "BSP") == 0) {
+        return backspace_icon;
+    }
+    if (strcmp(label, "TAB") == 0) {
+        return tab_icon;
+    }
+    if (strcmp(label, "SPC") == 0 || strcmp(label, "SPACE") == 0) {
+        return space_icon;
+    }
+    if (strcmp(label, "SHFT") == 0 || strcmp(label, "SHIFT") == 0 || strcmp(label, "SFT") == 0) {
+        return shift_icon;
+    }
+    if (strcmp(label, "ENT") == 0 || strcmp(label, "ENTER") == 0 || strcmp(label, "RET") == 0) {
+        return enter_icon;
+    }
+
+    return NULL;
+}
+
 // Function to draw a key label at the specified position
 void draw_key_label(painter_device_t surface, int x, int y, const char* label) {
+    // Initialize icons if needed
+    init_icons();
+
+    // Check if this label should be drawn as an icon
+    painter_image_handle_t icon = get_icon_for_label(label);
+    if (icon != NULL) {
+        // Calculate center position for the 16x16 icon within the 22x20 key square
+        int icon_x = x + (square_width - 16) / 2;   // (22 - 16) / 2 = 3
+        int icon_y = y + (square_height - 16) / 2;  // (20 - 16) / 2 = 2
+
+        // Draw the icon with white color and black background
+        qp_drawimage_recolor(surface, icon_x, icon_y, icon, HSV_WHITE, HSV_BLACK);
+        return;
+    }
+
+    // If not an icon, draw as text (existing code)
     // Load font if not already loaded
     if (font_9x12_handle == NULL) {
         font_9x12_handle = qp_load_font_mem(font_9x12);

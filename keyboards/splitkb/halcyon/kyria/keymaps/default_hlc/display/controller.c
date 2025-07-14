@@ -3,7 +3,6 @@
 #include "hlc_tft_display/hlc_tft_display.h"
 #include "qp_surface.h"
 #include "controller.h"
-#include "keymap/draw_keymap.h"
 #include "keymap/process_keymap.h"
 
 #define LCD_WIDTH 135
