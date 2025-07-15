@@ -1,6 +1,7 @@
 #include "process_keymap.h"
 #include "keycode_strings.h"
 #include "draw_keymap.h"
+#include "display/utils.h"
 
 // Include the keymap data
 extern const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS];
@@ -10,68 +11,14 @@ void get_active_keymap_strings(const char* keymap_strings[5][6], bool is_right_s
     // Get the current active layer
     uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
 
-    // Read keymap data from PROGMEM and convert to strings
-    // For left side: read rows 0-4, for right side: read rows 5-9
-    int start_row = is_right_side ? 5 : 0;
-
     for (int row = 0; row < 5; row++) {
         for (int col = 0; col < 6; col++) {
-            int keymap_col = col;
-            int keymap_row = row;
-
-            // Thumb keys are in a weird order
-            if (is_right_side) {
-                if (row == 3) {
-                    if (col == 0) {
-                        keymap_row = 2;
-                        keymap_col = -1;
-                    }
-                    if (col == 1) {
-                        keymap_row = 3;
-                        keymap_col = 2;
-                    }
-                }
-
-                if (row == 4) {
-                    keymap_row = 3;
-                    switch (col) {
-                        case 0: keymap_col = -1; break;
-                        case 1: keymap_col = 4; break;
-                        case 2: keymap_col = 0; break;
-                        case 3: keymap_col = 1; break;
-                        case 4: keymap_col = 3; break;
-                    }
-                }
-            } else {
-                if (row == 3) {
-                    if (col == 5) {
-                        keymap_row = 2;
-                        keymap_col = 6;
-                    }
-                    if (col == 4) {
-                        keymap_row = 3;
-                        keymap_col = 3;
-                    }
-                }
-
-                if (row == 4) {
-                    keymap_row = 3;
-                    // keymap_col = col;
-                    switch (col) {
-                        case 1: keymap_col = 2; break;
-                        case 2: keymap_col = 4; break;
-                        case 3: keymap_col = 5; break;
-                        case 4: keymap_col = 1; break;
-                        case 5: keymap_col = 6; break;
-                    }
-                }
-            }
-
-            // For the left side, reverse the column order
-            keymap_col = is_right_side ? (keymap_col + 1) : (6 - keymap_col);
+            int keyboard_row = row;
+            int keyboard_col = col;
+            get_keyboard_key_position(row, col, is_right_side, &keyboard_row, &keyboard_col);
 
             // Read the keycode from the keymap array
-            uint16_t keycode = pgm_read_word(&keymaps[active_layer][start_row + keymap_row][keymap_col]);
+            uint16_t keycode = pgm_read_word(&keymaps[active_layer][keyboard_row][keyboard_col]);
 
             // Convert keycode to string using the existing function
             const char* key_string = get_keycode_string_hlc(keycode);
@@ -107,4 +54,22 @@ bool should_redraw_keymap(layer_state_t last_layer_state, uint8_t last_default_l
 void update_layer_states(layer_state_t* last_layer_state, uint8_t* last_default_layer) {
     *last_layer_state = layer_state | default_layer_state;
     *last_default_layer = get_highest_layer(default_layer_state);
+}
+
+bool process_keymap_display(painter_device_t surface) {
+    static layer_state_t last_layer_state = 0;
+    static uint8_t last_default_layer = 0;
+
+    // Check if we need to redraw the keymap
+    if (should_redraw_keymap(last_layer_state, last_default_layer)) {
+        // Redraw the layout grid with the updated keymap
+        draw_keymap_layout(surface);
+
+        // Update our stored states
+        update_layer_states(&last_layer_state, &last_default_layer);
+
+        return true;
+    }
+
+    return false;
 }

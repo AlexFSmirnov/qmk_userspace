@@ -5,13 +5,26 @@
 #include "qmk-vim/vim.h"
 #include "qmk-vim/modes.h"
 #include "user.h"
+#include "display/utils.h"
+#include "display/game-of-life/game_of_life.h"
+#include "transactions/key_pos_sync.h"
 
 #define VIM_DOUBLE_J_DELAY 300
 
 uint16_t vim_j_last_pressed = 0;
 
+void keyboard_post_init_user(void) {
+    register_key_pos_sync_handler();
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_vim_mode(keycode, record)) {
+        return false;
+    }
+
+    if (record->event.pressed) {
+        register_game_of_life_key_press(record->event.key.row, record->event.key.col);
+        send_key_pos_to_slave(record->event.key.row, record->event.key.col);
         return false;
     }
 
@@ -27,6 +40,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (record->event.pressed) {
         uprintf("Key pressed: %u (%s)\n", keycode, get_keycode_string_hlc(keycode));
+        uprintf("row: %d, col: %d\n", record->event.key.row, record->event.key.col);
     }
     if (record->event.pressed) {
         switch (keycode) {

@@ -8,9 +8,11 @@ CONSOLE_ENABLE = yes
 SRC += user.c
 
 SRC += display/controller.c
+SRC += display/utils.c
 SRC += display/keymap/keycode_strings.c
 SRC += display/keymap/draw_keymap.c
 SRC += display/keymap/process_keymap.c
+SRC += display/game-of-life/game_of_life.c
 
 SRC += display/fonts/3x5.qff.c
 SRC += display/fonts/4x7.qff.c
@@ -31,5 +33,7 @@ SRC += qmk-vim/motions.c
 SRC += qmk-vim/actions.c
 SRC += qmk-vim/modes.c
 SRC += qmk-vim/vim.c
+
+SRC += transactions/key_pos_sync.c
 
 RGB_MATRIX_CUSTOM_USER = yes
