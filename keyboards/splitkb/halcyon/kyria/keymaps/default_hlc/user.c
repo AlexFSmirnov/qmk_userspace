@@ -25,7 +25,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         register_game_of_life_key_press(record->event.key.row, record->event.key.col);
         send_key_pos_to_slave(record->event.key.row, record->event.key.col);
-        return false;
+        // return false;
     }
 
     switch (keycode) {
