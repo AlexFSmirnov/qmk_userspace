@@ -24,4 +24,12 @@ SRC += display/images/icons/space.qgf.c
 SRC += display/images/icons/shift.qgf.c
 SRC += display/images/icons/enter.qgf.c
 
+SRC += qmk-vim/mac_mode.c
+SRC += qmk-vim/process_func.c
+SRC += qmk-vim/numbered_actions.c
+SRC += qmk-vim/motions.c
+SRC += qmk-vim/actions.c
+SRC += qmk-vim/modes.c
+SRC += qmk-vim/vim.c
+
 RGB_MATRIX_CUSTOM_USER = yes

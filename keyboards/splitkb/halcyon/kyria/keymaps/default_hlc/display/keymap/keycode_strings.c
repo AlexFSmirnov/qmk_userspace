@@ -1,4 +1,5 @@
 #include "keycode_strings.h"
+#include "user.h"
 
 // Function implementation
 const char* get_keycode_string_hlc(uint16_t keycode) {
@@ -137,6 +138,9 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         // Layer keys
         case KC_TRNS: return "";
         case KC_NO: return "";
+
+        // Custom keycodes
+        case VIM_TOGGLE: return "VIM";
 
         default: return "-";
     }

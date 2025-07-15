@@ -4,6 +4,7 @@
 #include "qp_surface.h"
 #include "controller.h"
 #include "keymap/process_keymap.h"
+#include "qmk-vim/vim.h"
 
 #define LCD_WIDTH 135
 #define LCD_HEIGHT 240
@@ -31,6 +32,11 @@ bool display_module_housekeeping_task_user(bool second_display) {
 
         // Update our stored states
         update_layer_states(&last_layer_state, &last_default_layer);
+    }
+
+    if (vim_mode_enabled()) {
+        qp_rect(lcd_surface, 50, 50, 100, 100, HSV_RED, 1);
+        qp_surface_draw(lcd_surface, lcd, 0, 0, 0);
     }
 
     return false;
