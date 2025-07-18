@@ -13,6 +13,7 @@ SRC += display/keymap/keycode_strings.c
 SRC += display/keymap/draw_keymap.c
 SRC += display/keymap/process_keymap.c
 SRC += display/game-of-life/game_of_life.c
+SRC += display/trackpad-movement/trackpad-movement.c
 
 SRC += display/fonts/3x5.qff.c
 SRC += display/fonts/4x7.qff.c
@@ -35,5 +36,6 @@ SRC += qmk-vim/modes.c
 SRC += qmk-vim/vim.c
 
 SRC += transactions/key_pos_sync.c
+SRC += transactions/trackpad_pos_sync.c
 
 RGB_MATRIX_CUSTOM_USER = yes

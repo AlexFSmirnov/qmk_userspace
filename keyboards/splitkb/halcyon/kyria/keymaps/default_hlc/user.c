@@ -10,7 +10,9 @@
 #include "user.h"
 #include "display/utils.h"
 #include "display/game-of-life/game_of_life.h"
+#include "display/trackpad-movement/trackpad-movement.h"
 #include "transactions/key_pos_sync.h"
+#include "transactions/trackpad_pos_sync.h"
 
 #define VIM_DOUBLE_J_DELAY 300
 
@@ -18,6 +20,8 @@ uint16_t vim_j_last_pressed = 0;
 
 void keyboard_post_init_user(void) {
     register_key_pos_sync_handler();
+    register_trackpad_pos_sync_handler();
+    rgb_matrix_mode(RGB_MATRIX_CUSTOM_REACTIVE_WHITE);
 }
 
 bool module_post_init_user(void) {
@@ -28,11 +32,11 @@ bool module_post_init_user(void) {
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    #ifndef HLC_CIRQUE_TRACKPAD
-    return mouse_report;
-    #endif
+    if (mouse_report.x != 0 || mouse_report.y != 0) {
+        register_trackpad_movement(mouse_report.x, mouse_report.y);
+        send_trackpad_pos_to_slave(mouse_report.x, mouse_report.y);
+    }
 
-    uprintf("x: %d, y: %d\n", mouse_report.x, mouse_report.y);
     return mouse_report;
 }
 
@@ -40,9 +44,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_vim_mode(keycode, record)) {
         return false;
     }
-
-    uint16_t dpi = pointing_device_get_cpi();
-    uprintf("dpi: %d\n", dpi);
 
     if (record->event.pressed) {
         register_game_of_life_key_press(record->event.key.row, record->event.key.col);
@@ -64,26 +65,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         // uprintf("key pressed: %u (%s)\n", keycode, get_keycode_string_hlc(keycode));
         // uprintf("row: %d, col: %d\n", record->event.key.row, record->event.key.col);
     }
-    if (record->event.pressed) {
-        switch (keycode) {
-            case KC_P:
-                if (record->event.pressed) {
-                    rgb_matrix_mode(RGB_MATRIX_RAINBOW_MOVING_CHEVRON);
-                }
-                return false;
-            case KC_SCLN:
-                if (record->event.pressed) {
-                    // rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_CUSTOM_BREATHING);
-                    rgb_matrix_mode(RGB_MATRIX_CUSTOM_REACTIVE_WHITE);
-                }
-                return false;
-            case KC_SLSH:
-                if (record->event.pressed) {
-                    rgb_matrix_mode(RGB_MATRIX_CUSTOM_REACTIVE_WHITE);
-                }
-                return false;
-        }
-    }
+
     return true;
 }
 
