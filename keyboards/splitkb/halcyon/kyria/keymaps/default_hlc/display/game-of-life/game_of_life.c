@@ -284,7 +284,7 @@ bool process_game_of_life_display(painter_device_t surface) {
     static uint32_t last_update = 0;
 
     // Check if 100ms have elapsed since the last update
-    if (timer_elapsed32(last_update) >= 50) {
+    if (timer_elapsed32(last_update) >= 200) {
         game_of_life_step();
         // draw_game_of_life_grid(surface);
         // draw_game_of_life_heatmap(surface);

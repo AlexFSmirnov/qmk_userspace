@@ -1,6 +1,9 @@
+#include "halcyon.h"
 #include "keyboard.h"
+#include "pointing_device.h"
 #include "quantum.h"
 #include "display/keymap/keycode_strings.h"
+#include "report.h"
 #include "rgb_matrix.h"
 #include "qmk-vim/vim.h"
 #include "qmk-vim/modes.h"
@@ -17,10 +20,29 @@ void keyboard_post_init_user(void) {
     register_key_pos_sync_handler();
 }
 
+bool module_post_init_user(void) {
+    #ifdef HLC_CIRQUE_TRACKPAD
+    pointing_device_set_cpi(300);
+    #endif
+    return false;
+}
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    #ifndef HLC_CIRQUE_TRACKPAD
+    return mouse_report;
+    #endif
+
+    uprintf("x: %d, y: %d\n", mouse_report.x, mouse_report.y);
+    return mouse_report;
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_vim_mode(keycode, record)) {
         return false;
     }
+
+    uint16_t dpi = pointing_device_get_cpi();
+    uprintf("dpi: %d\n", dpi);
 
     if (record->event.pressed) {
         register_game_of_life_key_press(record->event.key.row, record->event.key.col);
@@ -39,8 +61,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     if (record->event.pressed) {
-        uprintf("Key pressed: %u (%s)\n", keycode, get_keycode_string_hlc(keycode));
-        uprintf("row: %d, col: %d\n", record->event.key.row, record->event.key.col);
+        // uprintf("key pressed: %u (%s)\n", keycode, get_keycode_string_hlc(keycode));
+        // uprintf("row: %d, col: %d\n", record->event.key.row, record->event.key.col);
     }
     if (record->event.pressed) {
         switch (keycode) {
