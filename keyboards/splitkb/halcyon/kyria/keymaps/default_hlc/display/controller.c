@@ -42,6 +42,8 @@ bool display_module_housekeeping_task_user(bool second_display) {
 
     if (active_layer != 0 && active_layer != _MOUSE_KEYS) {
         should_redraw = process_keymap_display(lcd_surface) || should_redraw;
+    } else {
+        reset_keymap_display();
     }
 
     if (should_redraw) {

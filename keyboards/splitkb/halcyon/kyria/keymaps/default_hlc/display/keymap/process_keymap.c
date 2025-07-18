@@ -1,7 +1,14 @@
 #include "process_keymap.h"
+#include "action_layer.h"
 #include "keycode_strings.h"
 #include "draw_keymap.h"
 #include "display/utils.h"
+
+#define DISPLAY_WIDTH 135
+#define DISPLAY_HEIGHT 240
+
+static layer_state_t last_layer_state = 0;
+static uint8_t last_default_layer = 0;
 
 // Include the keymap data
 extern const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS];
@@ -30,6 +37,8 @@ void get_active_keymap_strings(const char* keymap_strings[5][6], bool is_right_s
 }
 
 void draw_keymap_layout(painter_device_t surface) {
+    qp_rect(surface, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, HSV_BLACK, 1);
+
     // Create arrays to hold the active keymap strings for left and right sides
     const char* left_keymap[5][6];
     const char* right_keymap[5][6];
@@ -57,9 +66,6 @@ void update_layer_states(layer_state_t* last_layer_state, uint8_t* last_default_
 }
 
 bool process_keymap_display(painter_device_t surface) {
-    static layer_state_t last_layer_state = 0;
-    static uint8_t last_default_layer = 0;
-
     // Check if we need to redraw the keymap
     if (should_redraw_keymap(last_layer_state, last_default_layer)) {
         // Redraw the layout grid with the updated keymap
@@ -72,4 +78,9 @@ bool process_keymap_display(painter_device_t surface) {
     }
 
     return false;
+}
+
+void reset_keymap_display(void) {
+    last_layer_state = 0;
+    last_default_layer = 0;
 }
