@@ -8,6 +8,7 @@
 #include "qmk-vim/vim.h"
 #include "game-of-life/game_of_life.h"
 #include "utils.h"
+#include "enums.h"
 
 #define LCD_WIDTH 135
 #define LCD_HEIGHT 240
@@ -29,27 +30,18 @@ bool display_module_housekeeping_task_user(bool second_display) {
 
     uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
 
-    if (process_trackpad_movement_display(lcd_surface)) {
-        should_redraw = true;
-    }
-
-    if (1 == 2) {
     if (active_layer == 0) {
-        if (process_game_of_life_display(lcd_surface)) {
-            should_redraw = true;
-        }
+        should_redraw = process_game_of_life_display(lcd_surface) || should_redraw;
+    }
+
+    if (active_layer == _MOUSE_KEYS) {
+        should_redraw = process_trackpad_movement_display(lcd_surface) || should_redraw;
     } else {
-        reset_game_of_life_grid();
+        clear_trackpad_movement();
     }
 
-    if (process_keymap_display(lcd_surface)) {
-        should_redraw = true;
-    }
-
-    if (vim_mode_enabled()) {
-        qp_rect(lcd_surface, 50, 50, 100, 100, HSV_RED, 1);
-        should_redraw = true;
-    }
+    if (active_layer != 0 && active_layer != _MOUSE_KEYS) {
+        should_redraw = process_keymap_display(lcd_surface) || should_redraw;
     }
 
     if (should_redraw) {

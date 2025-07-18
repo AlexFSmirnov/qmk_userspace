@@ -1,12 +1,12 @@
 #include "trackpad-movement.h"
+#include "../game-of-life/game_of_life.h"
 #include "quantum.h"
 
 // Display dimensions from controller.c
 #define LCD_WIDTH 135
 #define LCD_HEIGHT 240
 
-// Render cooldown period in milliseconds
-#define RENDER_COOLDOWN_MS 200
+#define SHOULD_WARP false
 
 // Static variables to track state
 static bool pixel_buffer[LCD_HEIGHT][LCD_WIDTH];
@@ -14,7 +14,6 @@ static int last_x = LCD_WIDTH / 2;   // Default to center (67)
 static int last_y = LCD_HEIGHT / 2;  // Default to center (120)
 static bool buffer_initialized = false;
 static bool buffer_dirty = false;    // Track if buffer has changes since last render
-static uint32_t last_render_time = 0; // Track when we last rendered
 
 // Initialize pixel buffer to all false
 static void init_pixel_buffer(void) {
@@ -43,6 +42,7 @@ static void draw_line_to_buffer(int x0, int y0, int x1, int y1) {
         // Set pixel if within bounds
         if (x >= 0 && x < LCD_WIDTH && y >= 0 && y < LCD_HEIGHT) {
             pixel_buffer[y][x] = true;
+            register_game_of_life_pixel(x, y);
         }
 
         // Check if we've reached the end point
@@ -80,6 +80,32 @@ void clear_trackpad_movement(void) {
 
 void register_trackpad_movement(int x, int y) {
     init_pixel_buffer();
+
+    if (!SHOULD_WARP) {
+        int new_x = last_x + x;
+        int new_y = last_y + y;
+
+        if (new_x < 0) {
+            new_x = 0;
+        }
+        if (new_x >= LCD_WIDTH) {
+            new_x = LCD_WIDTH - 1;
+        }
+        if (new_y < 0) {
+            new_y = 0;
+        }
+        if (new_y >= LCD_HEIGHT) {
+            new_y = LCD_HEIGHT - 1;
+        }
+
+        draw_line_to_buffer(last_x, last_y, new_x, new_y);
+
+        buffer_dirty = true;
+
+        last_x = new_x;
+        last_y = new_y;
+        return;
+    }
 
     // Calculate new position from relative movement
     int new_x = last_x + x;
@@ -187,13 +213,6 @@ bool process_trackpad_movement_display(painter_device_t surface) {
         return false;
     }
 
-    // Check if enough time has passed since last render
-    uint32_t current_time = timer_read32();
-    if ((current_time - last_render_time) < RENDER_COOLDOWN_MS) {
-        // Still in cooldown period, don't render yet but keep buffer dirty
-        // return false;
-    }
-
     // Clear the surface first
     // qp_rect(surface, 0, 0, LCD_WIDTH, LCD_HEIGHT, 0, 0, 0, true);
 
@@ -205,7 +224,7 @@ bool process_trackpad_movement_display(painter_device_t surface) {
         for (int x = 0; x < LCD_WIDTH; x++) {
             if (pixel_buffer[y][x]) {
                 // Draw a single pixel using a 1x1 rectangle
-                qp_rect(surface, x, y, x, y, hsv.h, hsv.s, 255, true);
+                qp_rect(surface, x, y, x + 1, y + 1, hsv.h, hsv.s, 255, true);
                 // Clear the pixel from the buffer since we've drawn it
                 pixel_buffer[y][x] = false;
             }
@@ -214,9 +233,6 @@ bool process_trackpad_movement_display(painter_device_t surface) {
 
     // Mark buffer as clean since we just rendered it
     buffer_dirty = false;
-
-    // Update last render time
-    last_render_time = current_time;
 
     return true;
 }

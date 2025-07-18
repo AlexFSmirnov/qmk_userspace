@@ -7,12 +7,12 @@
 #include "rgb_matrix.h"
 #include "qmk-vim/vim.h"
 #include "qmk-vim/modes.h"
-#include "user.h"
 #include "display/utils.h"
 #include "display/game-of-life/game_of_life.h"
 #include "display/trackpad-movement/trackpad-movement.h"
 #include "transactions/key_pos_sync.h"
 #include "transactions/trackpad_pos_sync.h"
+#include "enums.h"
 
 #define VIM_DOUBLE_J_DELAY 300
 
@@ -29,6 +29,11 @@ bool module_post_init_user(void) {
     pointing_device_set_cpi(300);
     #endif
     return false;
+}
+
+void pointing_device_init_user(void) {
+    set_auto_mouse_layer(_MOUSE_KEYS);
+    set_auto_mouse_enable(true);
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {

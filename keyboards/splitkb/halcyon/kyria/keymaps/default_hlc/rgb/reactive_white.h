@@ -1,6 +1,7 @@
 #ifdef RGB_MATRIX_KEYREACTIVE_ENABLED
 RGB_MATRIX_EFFECT(REACTIVE_WHITE)
 #        ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
+#include "enums.h"
 
 static hsv_t REACTIVE_WHITE_math(hsv_t hsv, uint16_t offset) {
 #            ifdef RGB_MATRIX_REACTIVE_WHITE_GRADIENT_MODE
@@ -52,7 +53,7 @@ static bool LAYER_COLUMNS(effect_params_t* params) {
 
 bool REACTIVE_WHITE(effect_params_t* params) {
     uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
-    if (active_layer == 0) {
+    if (active_layer == 0 || active_layer == _MOUSE_KEYS) {
         return effect_runner_reactive(params, &REACTIVE_WHITE_math);
     }
 

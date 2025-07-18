@@ -1,5 +1,5 @@
 #include "keycode_strings.h"
-#include "user.h"
+#include "enums.h"
 
 // Function implementation
 const char* get_keycode_string_hlc(uint16_t keycode) {
