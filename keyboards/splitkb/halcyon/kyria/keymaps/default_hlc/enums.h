@@ -2,13 +2,15 @@
 
 enum custom_keycodes {
     VIM_TOGGLE = QK_KB_0,
+    RM_RESET,
 };
 
 enum layers {
     _QWERTY = 0,
-    _NAV,
     _SYM,
-    _FUNCTION,
-    _ADJUST,
+    _NAV,
+    _NAV_UP,
+    _FKEYS,
+    _HUB,
     _MOUSE_KEYS,
 };

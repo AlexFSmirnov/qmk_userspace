@@ -28,19 +28,20 @@ bool display_module_housekeeping_task_user(bool second_display) {
 
     bool should_redraw = false;
 
-    uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
+    // uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
 
-    if (active_layer == 0) {
-        should_redraw = process_game_of_life_display(lcd_surface) || should_redraw;
-    }
+    // if (active_layer == 0) {
+    //     should_redraw = process_game_of_life_display(lcd_surface) || should_redraw;
+    // }
 
-    if (active_layer == _MOUSE_KEYS) {
-        should_redraw = process_trackpad_movement_display(lcd_surface) || should_redraw;
-    } else {
-        clear_trackpad_movement();
-    }
+    // if (active_layer == _MOUSE_KEYS) {
+    //     should_redraw = process_trackpad_movement_display(lcd_surface) || should_redraw;
+    // } else {
+    //     clear_trackpad_movement();
+    // }
 
-    if (active_layer != 0 && active_layer != _MOUSE_KEYS) {
+    // if (active_layer != 0 && active_layer != _MOUSE_KEYS) {
+    if (1 == 1) {
         should_redraw = process_keymap_display(lcd_surface) || should_redraw;
     } else {
         reset_keymap_display();
