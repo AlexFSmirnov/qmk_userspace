@@ -7,7 +7,6 @@
 #include "qmk-vim/modes.h"
 #include "display/game-of-life/game_of_life.h"
 #include "display/trackpad-movement/trackpad-movement.h"
-#include "display/controller.h"
 #include "transactions/key_pos_sync.h"
 #include "transactions/trackpad_pos_sync.h"
 #include "transactions/vim_mode_sync.h"
@@ -30,10 +29,6 @@ void keyboard_post_init_user(void) {
 bool module_post_init_user(void) {
     #ifdef HLC_CIRQUE_TRACKPAD
     pointing_device_set_cpi(300);
-    #endif
-
-    #ifdef HLC_TFT_DISPLAY
-    init_display_surfaces();
     #endif
 
     sync_vim_mode_to_slave();

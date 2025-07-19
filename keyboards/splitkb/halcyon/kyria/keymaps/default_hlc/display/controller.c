@@ -17,9 +17,6 @@
 
 painter_device_t lcd;
 painter_device_t lcd_surface;
-painter_device_t vim_header_surface;
-
-static uint8_t vim_header_framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
 
 // External variables from user.c for key position tracking
 extern int current_key_row;
@@ -27,11 +24,6 @@ extern int current_key_col;
 extern bool key_pressed_for_display;
 
 bool was_vim_mode_enabled = false;
-
-void init_display_surfaces(void) {
-    vim_header_surface = qp_make_rgb565_surface(LCD_WIDTH, LCD_HEIGHT, vim_header_framebuffer);
-    qp_init(vim_header_surface, QP_ROTATION_0);
-}
 
 bool display_module_housekeeping_task_user(bool second_display) {
     #ifndef HLC_TFT_DISPLAY
