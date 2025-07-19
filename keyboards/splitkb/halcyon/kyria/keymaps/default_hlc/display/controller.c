@@ -6,6 +6,7 @@
 #include "controller.h"
 #include "keymap/process_keymap.h"
 #include "qmk-vim/vim.h"
+#include "vim-header/vim-header.h"
 #include "game-of-life/game_of_life.h"
 #include "utils.h"
 #include "enums.h"
@@ -15,11 +16,21 @@
 
 painter_device_t lcd;
 painter_device_t lcd_surface;
+painter_device_t vim_header_surface;
+
+static uint8_t vim_header_framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
 
 // External variables from user.c for key position tracking
 extern int current_key_row;
 extern int current_key_col;
 extern bool key_pressed_for_display;
+
+bool was_vim_mode_enabled = false;
+
+void init_display_surfaces(void) {
+    vim_header_surface = qp_make_rgb565_surface(LCD_WIDTH, LCD_HEIGHT, vim_header_framebuffer);
+    qp_init(vim_header_surface, QP_ROTATION_0);
+}
 
 bool display_module_housekeeping_task_user(bool second_display) {
     #ifndef HLC_TFT_DISPLAY
@@ -28,23 +39,36 @@ bool display_module_housekeeping_task_user(bool second_display) {
 
     bool should_redraw = false;
 
-    // uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
+    uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
 
-    // if (active_layer == 0) {
-    //     should_redraw = process_game_of_life_display(lcd_surface) || should_redraw;
-    // }
+    if (active_layer == 0) {
+        should_redraw = process_game_of_life_display(lcd_surface) || should_redraw;
+        if (should_redraw) {
+            clear_vim_header();
+        }
+    }
 
-    // if (active_layer == _MOUSE_KEYS) {
-    //     should_redraw = process_trackpad_movement_display(lcd_surface) || should_redraw;
-    // } else {
-    //     clear_trackpad_movement();
-    // }
+    if (active_layer == _MOUSE_KEYS) {
+        should_redraw = process_trackpad_movement_display(lcd_surface) || should_redraw;
+    } else {
+        clear_trackpad_movement();
+    }
 
-    // if (active_layer != 0 && active_layer != _MOUSE_KEYS) {
-    if (1 == 1) {
+    if (active_layer != 0 && active_layer != _MOUSE_KEYS) {
         should_redraw = process_keymap_display(lcd_surface) || should_redraw;
     } else {
         reset_keymap_display();
+    }
+
+    if (vim_mode_enabled() && active_layer != _MOUSE_KEYS) {
+        should_redraw = process_vim_header_display(lcd_surface) || should_redraw;
+        was_vim_mode_enabled = true;
+    } else {
+        clear_vim_header();
+        if (was_vim_mode_enabled) {
+            reset_keymap_display();
+            was_vim_mode_enabled = false;
+        }
     }
 
     if (should_redraw) {

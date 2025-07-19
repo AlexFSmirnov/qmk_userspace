@@ -24,7 +24,7 @@
 #define ST7789_NO_AUTOMATIC_VIEWPORT_OFFSETS
 #define ST7789_NUM_DEVICES 1
 
-#define SURFACE_NUM_DEVICES 1
+#define SURFACE_NUM_DEVICES 2
 
 // Backlight configuration
 #undef BACKLIGHT_PIN

@@ -10,6 +10,7 @@
 #include "../images/icons/shift.qgf.h"
 #include "../images/icons/enter.qgf.h"
 #include "../images/icons/lock.qgf.h"
+#include "../images/icons/mute.qgf.h"
 #include "../images/icons/volume_down.qgf.h"
 #include "../images/icons/volume_up.qgf.h"
 
@@ -34,6 +35,7 @@ static painter_image_handle_t space_icon = NULL;
 static painter_image_handle_t shift_icon = NULL;
 static painter_image_handle_t enter_icon = NULL;
 static painter_image_handle_t lock_icon = NULL;
+static painter_image_handle_t mute_icon = NULL;
 static painter_image_handle_t volume_down_icon = NULL;
 static painter_image_handle_t volume_up_icon = NULL;
 
@@ -56,6 +58,9 @@ static void init_icons(void) {
     }
     if (lock_icon == NULL) {
         lock_icon = qp_load_image_mem(gfx_lock);
+    }
+    if (mute_icon == NULL) {
+        mute_icon = qp_load_image_mem(gfx_mute);
     }
     if (volume_down_icon == NULL) {
         volume_down_icon = qp_load_image_mem(gfx_volume_down);

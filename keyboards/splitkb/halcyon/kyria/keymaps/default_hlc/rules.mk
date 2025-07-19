@@ -14,6 +14,7 @@ SRC += display/keymap/draw_keymap.c
 SRC += display/keymap/process_keymap.c
 SRC += display/game-of-life/game_of_life.c
 SRC += display/trackpad-movement/trackpad-movement.c
+SRC += display/vim-header/vim-header.c
 
 SRC += display/fonts/3x5.qff.c
 SRC += display/fonts/4x7.qff.c
