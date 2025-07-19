@@ -7,6 +7,7 @@
 #include "keymap/process_keymap.h"
 #include "qmk-vim/vim.h"
 #include "vim-header/vim-header.h"
+#include "../transactions/vim_mode_sync.h"
 #include "game-of-life/game_of_life.h"
 #include "utils.h"
 #include "enums.h"
@@ -60,7 +61,7 @@ bool display_module_housekeeping_task_user(bool second_display) {
         reset_keymap_display();
     }
 
-    if (vim_mode_enabled() && active_layer != _MOUSE_KEYS) {
+    if (get_synced_vim_enabled() && active_layer != _MOUSE_KEYS) {
         should_redraw = process_vim_header_display(lcd_surface) || should_redraw;
         was_vim_mode_enabled = true;
     } else {

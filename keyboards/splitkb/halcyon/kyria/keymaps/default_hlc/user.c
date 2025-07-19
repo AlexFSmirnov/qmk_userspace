@@ -10,15 +10,21 @@
 #include "display/controller.h"
 #include "transactions/key_pos_sync.h"
 #include "transactions/trackpad_pos_sync.h"
+#include "transactions/vim_mode_sync.h"
 #include "enums.h"
 
 #define VIM_DOUBLE_J_DELAY 300
 
 uint16_t vim_j_last_pressed = 0;
 
+void sync_vim_mode_to_slave(void) {
+    send_vim_mode_to_slave(get_vim_mode(), vim_mode_enabled());
+}
+
 void keyboard_post_init_user(void) {
     register_key_pos_sync_handler();
     register_trackpad_pos_sync_handler();
+    register_vim_mode_sync_handler();
 }
 
 bool module_post_init_user(void) {
@@ -30,12 +36,20 @@ bool module_post_init_user(void) {
     init_display_surfaces();
     #endif
 
+    sync_vim_mode_to_slave();
+
     return false;
 }
 
 void pointing_device_init_user(void) {
     set_auto_mouse_layer(_MOUSE_KEYS);
     set_auto_mouse_enable(true);
+}
+
+void housekeeping_task_user(void) {
+    if (is_synced_vim_mode_outdated()) {
+        sync_vim_mode_to_slave();
+    }
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
@@ -59,6 +73,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         switch (keycode) {
             case VIM_TOGGLE:
                 toggle_vim_mode();
+                sync_vim_mode_to_slave();
                 return false;
             case PC_LOCK:
                 tap_code16(LGUI(KC_L));
@@ -91,6 +106,7 @@ bool process_insert_mode_user(uint16_t keycode, keyrecord_t *record) {
             if (now - vim_j_last_pressed < VIM_DOUBLE_J_DELAY) {
                 tap_code(KC_BSPC);
                 normal_mode();
+                sync_vim_mode_to_slave();
                 vim_j_last_pressed = 0;
                 return false;
             }

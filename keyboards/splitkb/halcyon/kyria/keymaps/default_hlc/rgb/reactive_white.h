@@ -26,6 +26,11 @@ static bool LAYER_COLUMNS(effect_params_t* params) {
     hsv_t off_hsv = rgb_matrix_config.hsv;
     off_hsv.s = 0;
 
+    rgb_t on_rgb = rgb_matrix_hsv_to_rgb(on_hsv);
+    for (uint8_t i = led_min; i <= led_max; i++) {
+        rgb_matrix_set_color(i, on_rgb.r, on_rgb.g, on_rgb.b);
+    }
+
     for (uint8_t row = 0; row < 9; row++) {
         for (uint8_t col = 0; col < 7; col++) {
             uint8_t led = g_led_config.matrix_co[row][col];

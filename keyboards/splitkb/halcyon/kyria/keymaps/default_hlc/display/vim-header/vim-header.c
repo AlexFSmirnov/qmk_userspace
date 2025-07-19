@@ -1,5 +1,6 @@
 #include "vim-header.h"
 #include "../../qmk-vim/modes.h"
+#include "../../transactions/vim_mode_sync.h"
 #include "../fonts/12x20.qff.h"
 #include "rgb_matrix.h"
 
@@ -14,7 +15,7 @@ static uint8_t previous_layer = 0;
 
 bool process_vim_header_display(painter_device_t surface) {
     // Get current mode
-    vim_mode_t current_mode = get_vim_mode();
+    vim_mode_t current_mode = get_synced_vim_mode();
     uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
 
     // Only proceed if mode changed or was reset
