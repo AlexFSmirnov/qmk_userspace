@@ -26,6 +26,10 @@ SRC += display/images/icons/tab.qgf.c
 SRC += display/images/icons/space.qgf.c
 SRC += display/images/icons/shift.qgf.c
 SRC += display/images/icons/enter.qgf.c
+SRC += display/images/icons/lock.qgf.c
+SRC += display/images/icons/mute.qgf.c
+SRC += display/images/icons/volume_down.qgf.c
+SRC += display/images/icons/volume_up.qgf.c
 
 SRC += qmk-vim/mac_mode.c
 SRC += qmk-vim/process_func.c

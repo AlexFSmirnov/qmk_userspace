@@ -90,10 +90,10 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         case KC_PGDN: return "PGDN";
 
         // Arrow keys
-        case KC_LEFT: return "←";
-        case KC_RGHT: return "→";
-        case KC_UP: return "↑";
-        case KC_DOWN: return "↓";
+        case KC_LEFT: return "<";
+        case KC_RGHT: return ">";
+        case KC_UP: return "^";
+        case KC_DOWN: return "v";
 
         // Punctuation and symbols
         case KC_COMM: return ",";
@@ -126,6 +126,18 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         case KC_COLN: return ":";
         case KC_QUES: return "?";
 
+        // RGB Matrix
+        case RM_HUEU: return "H+";
+        case RM_HUED: return "H-";
+        case RM_SATU: return "S+";
+        case RM_SATD: return "S-";
+        case RM_VALU: return "V+";
+        case RM_VALD: return "V-";
+        case RM_TOGG: return "TOG";
+        case RM_NEXT: return "NXT";
+        case RM_PREV: return "PRV";
+        case RM_RESET: return "RST";
+
         // Media keys
         case KC_MUTE: return "MUTE";
         case KC_VOLU: return "VOL+";
@@ -135,12 +147,28 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         case KC_MPRV: return "PREV";
         case KC_MNXT: return "NEXT";
 
-        // Layer keys
-        case KC_TRNS: return "";
+        // Layers
         case KC_NO: return "";
+        case KC_TRNS: return "";
+        case MO(_SYM): return "SYM";
+        case MO(_NAV): return "NAV";
+        case MO(_NAV_UP): return "^";
+        case MO(_FKEYS): return "FNC";
+        case MO(_HUB): return "HUB";
+
+        // Mouse keys
+        case MS_BTN1: return "LMB";
+        case MS_BTN2: return "RMB";
+        case MS_BTN3: return "MMB";
+        case MS_BTN4: return "M4";
+        case MS_BTN5: return "M5";
+        case MS_BTN6: return "M6";
+        case MS_BTN7: return "M7";
+        case MS_BTN8: return "M8";
 
         // Custom keycodes
         case VIM_TOGGLE: return "VIM";
+        case PC_LOCK: return "LOCK";
 
         default: return "-";
     }

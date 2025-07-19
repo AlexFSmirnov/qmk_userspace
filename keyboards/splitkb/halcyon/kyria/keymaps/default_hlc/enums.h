@@ -3,6 +3,7 @@
 enum custom_keycodes {
     VIM_TOGGLE = QK_KB_0,
     RM_RESET,
+    PC_LOCK,
 };
 
 enum layers {

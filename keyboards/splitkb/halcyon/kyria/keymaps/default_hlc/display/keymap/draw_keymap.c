@@ -9,6 +9,9 @@
 #include "../images/icons/space.qgf.h"
 #include "../images/icons/shift.qgf.h"
 #include "../images/icons/enter.qgf.h"
+#include "../images/icons/lock.qgf.h"
+#include "../images/icons/volume_down.qgf.h"
+#include "../images/icons/volume_up.qgf.h"
 
 #define BORDER_COLOR 0, 0, 100
 
@@ -30,6 +33,9 @@ static painter_image_handle_t tab_icon = NULL;
 static painter_image_handle_t space_icon = NULL;
 static painter_image_handle_t shift_icon = NULL;
 static painter_image_handle_t enter_icon = NULL;
+static painter_image_handle_t lock_icon = NULL;
+static painter_image_handle_t volume_down_icon = NULL;
+static painter_image_handle_t volume_up_icon = NULL;
 
 // Function to initialize icons if not already loaded
 static void init_icons(void) {
@@ -47,6 +53,15 @@ static void init_icons(void) {
     }
     if (enter_icon == NULL) {
         enter_icon = qp_load_image_mem(gfx_enter);
+    }
+    if (lock_icon == NULL) {
+        lock_icon = qp_load_image_mem(gfx_lock);
+    }
+    if (volume_down_icon == NULL) {
+        volume_down_icon = qp_load_image_mem(gfx_volume_down);
+    }
+    if (volume_up_icon == NULL) {
+        volume_up_icon = qp_load_image_mem(gfx_volume_up);
     }
 }
 
@@ -69,6 +84,15 @@ static painter_image_handle_t get_icon_for_label(const char* label) {
     }
     if (strcmp(label, "ENT") == 0 || strcmp(label, "ENTER") == 0 || strcmp(label, "RET") == 0) {
         return enter_icon;
+    }
+    if (strcmp(label, "LOCK") == 0) {
+        return lock_icon;
+    }
+    if (strcmp(label, "VOL-") == 0) {
+        return volume_down_icon;
+    }
+    if (strcmp(label, "VOL+") == 0) {
+        return volume_up_icon;
     }
 
     return NULL;

@@ -2,12 +2,9 @@
 #include "keyboard.h"
 #include "pointing_device.h"
 #include "quantum.h"
-#include "display/keymap/keycode_strings.h"
-#include "report.h"
 #include "rgb_matrix.h"
 #include "qmk-vim/vim.h"
 #include "qmk-vim/modes.h"
-#include "display/utils.h"
 #include "display/game-of-life/game_of_life.h"
 #include "display/trackpad-movement/trackpad-movement.h"
 #include "transactions/key_pos_sync.h"
@@ -21,7 +18,6 @@ uint16_t vim_j_last_pressed = 0;
 void keyboard_post_init_user(void) {
     register_key_pos_sync_handler();
     register_trackpad_pos_sync_handler();
-    rgb_matrix_mode(RGB_MATRIX_CUSTOM_REACTIVE_WHITE);
 }
 
 bool module_post_init_user(void) {
@@ -53,22 +49,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         register_game_of_life_key_press(record->event.key.row, record->event.key.col);
         send_key_pos_to_slave(record->event.key.row, record->event.key.col);
-        // return false;
-    }
 
-    switch (keycode) {
-        case VIM_TOGGLE:
-                uprintf("toggle_vim_mode pressed\n");
-            if (record->event.pressed) {
-                uprintf("toggle_vim_mode\n");
+        switch (keycode) {
+            case VIM_TOGGLE:
                 toggle_vim_mode();
-            }
-            return false;
-    }
-
-    if (record->event.pressed) {
-        // uprintf("key pressed: %u (%s)\n", keycode, get_keycode_string_hlc(keycode));
-        // uprintf("row: %d, col: %d\n", record->event.key.row, record->event.key.col);
+                return false;
+            case PC_LOCK:
+                tap_code16(LGUI(KC_L));
+                return false;
+            case KC_H:
+                if ((get_mods() & MOD_MASK_CTRL) && (get_mods() & MOD_MASK_GUI)) {
+                    tap_code16(LCTL(LGUI(KC_LEFT)));
+                    return false;
+                }
+                return false;
+            case KC_L:
+                if ((get_mods() & MOD_MASK_CTRL) && (get_mods() & MOD_MASK_GUI)) {
+                    tap_code16(LCTL(LGUI(KC_RIGHT)));
+                    return false;
+                }
+                return false;
+            case RM_RESET:
+                rgb_matrix_mode(RGB_MATRIX_CUSTOM_REACTIVE_WHITE);
+                return false;
+        }
     }
 
     return true;
