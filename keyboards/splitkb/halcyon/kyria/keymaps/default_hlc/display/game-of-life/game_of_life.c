@@ -103,6 +103,39 @@ void register_game_of_life_pixel(int x, int y) {
     has_pending_key_press = true;
 }
 
+void register_game_of_life_scroll(int shift) {
+    // Initialize grid if not already done
+    if (!gol_initialized) {
+        initialize_gol_grid();
+    }
+
+    // Handle zero shift or no-op cases
+    if (shift == 0) {
+        return;
+    }
+
+    // Normalize shift to be within grid bounds
+    shift = shift % GRID_HEIGHT;
+    if (shift < 0) {
+        shift += GRID_HEIGHT;
+    }
+
+    // Create a temporary grid to store the shifted result
+    static bool temp_grid[GRID_HEIGHT][GRID_WIDTH];
+
+    // Copy the current grid with the shift applied
+    for (int y = 0; y < GRID_HEIGHT; y++) {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            // Calculate the source row with wrapping
+            int source_y = (y + shift) % GRID_HEIGHT;
+            temp_grid[y][x] = gol_grid[source_y][x];
+        }
+    }
+
+    // Copy the result back to the main grid
+    memcpy(gol_grid, temp_grid, sizeof(gol_grid));
+}
+
 void process_game_of_life_key_press(void) {
     if (!has_pending_key_press) {
         return;
@@ -137,12 +170,8 @@ void game_of_life_step(void) {
                         continue;
                     }
 
-                    int ny = y + i;
-                    int nx = x + j;
-
-                    if (ny < 0 || ny >= GRID_HEIGHT || nx < 0 || nx >= GRID_WIDTH) {
-                        continue;
-                    }
+                    int ny = (y + i + GRID_HEIGHT) % GRID_HEIGHT;
+                    int nx = (x + j + GRID_WIDTH) % GRID_WIDTH;
 
                     if (gol_grid[ny][nx]) {
                         alive_neighbors++;
@@ -200,14 +229,11 @@ void draw_game_of_life_heatmap(painter_device_t surface) {
 
             for (int i = -HEATMAP_SQUARE_SIZE; i <= HEATMAP_SQUARE_SIZE; i++) {
                 for (int j = -HEATMAP_SQUARE_SIZE; j <= HEATMAP_SQUARE_SIZE; j++) {
-                    int ny = y + i;
-                    int nx = x + j;
+                    int ny = (y + i + GRID_HEIGHT) % GRID_HEIGHT;
+                    int nx = (x + j + GRID_WIDTH) % GRID_WIDTH;
 
-                    // Check bounds
-                    if (ny >= 0 && ny < GRID_HEIGHT && nx >= 0 && nx < GRID_WIDTH) {
-                        if (gol_grid[ny][nx]) {
-                            alive_count++;
-                        }
+                    if (gol_grid[ny][nx]) {
+                        alive_count++;
                     }
                 }
             }
@@ -255,14 +281,11 @@ void draw_game_of_life_hue_heatmap(painter_device_t surface) {
 
             for (int i = -HEATMAP_SQUARE_SIZE; i <= HEATMAP_SQUARE_SIZE; i++) {
                 for (int j = -HEATMAP_SQUARE_SIZE; j <= HEATMAP_SQUARE_SIZE; j++) {
-                    int ny = y + i;
-                    int nx = x + j;
+                    int ny = (y + i + GRID_HEIGHT) % GRID_HEIGHT;
+                    int nx = (x + j + GRID_WIDTH) % GRID_WIDTH;
 
-                    // Check bounds
-                    if (ny >= 0 && ny < GRID_HEIGHT && nx >= 0 && nx < GRID_WIDTH) {
-                        if (gol_grid[ny][nx]) {
-                            alive_count++;
-                        }
+                    if (gol_grid[ny][nx]) {
+                        alive_count++;
                     }
                 }
             }

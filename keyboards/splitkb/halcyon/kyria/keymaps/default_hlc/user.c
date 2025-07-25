@@ -73,18 +73,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             case PC_LOCK:
                 tap_code16(LGUI(KC_L));
                 return false;
+            case KC_WH_D:
+                register_game_of_life_scroll(-2);
+                return true;
+            case KC_WH_U:
+                register_game_of_life_scroll(2);
+                return true;
             case KC_H:
                 if ((get_mods() & MOD_MASK_CTRL) && (get_mods() & MOD_MASK_GUI)) {
                     tap_code16(LCTL(LGUI(KC_LEFT)));
                     return false;
                 }
-                return false;
+                return true;
             case KC_L:
                 if ((get_mods() & MOD_MASK_CTRL) && (get_mods() & MOD_MASK_GUI)) {
                     tap_code16(LCTL(LGUI(KC_RIGHT)));
                     return false;
                 }
-                return false;
+                return true;
             case RM_RESET:
                 rgb_matrix_mode(RGB_MATRIX_CUSTOM_REACTIVE_WHITE);
                 return false;
