@@ -3,6 +3,8 @@
 #include "key_pos_sync.h"
 #include "display/game-of-life/game_of_life.h"
 
+extern const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS];
+
 typedef struct _master_to_slave_t {
     int row;
     int col;

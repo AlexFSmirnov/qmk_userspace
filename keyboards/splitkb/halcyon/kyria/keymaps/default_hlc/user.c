@@ -10,6 +10,7 @@
 #include "transactions/key_pos_sync.h"
 #include "transactions/trackpad_pos_sync.h"
 #include "transactions/vim_mode_sync.h"
+#include "transactions/trackpad_shift_sync.h"
 #include "enums.h"
 
 #define VIM_DOUBLE_J_DELAY 300
@@ -24,11 +25,12 @@ void keyboard_post_init_user(void) {
     register_key_pos_sync_handler();
     register_trackpad_pos_sync_handler();
     register_vim_mode_sync_handler();
+    register_trackpad_shift_sync_handler();
 }
 
 bool module_post_init_user(void) {
     #ifdef HLC_CIRQUE_TRACKPAD
-    pointing_device_set_cpi(300);
+    pointing_device_set_cpi(TRACKPAD_DEFAULT_CPI);
     #endif
 
     sync_vim_mode_to_slave();
@@ -58,6 +60,18 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_vim_mode(keycode, record)) {
+        return false;
+    }
+
+    if (keycode == SENS_SHIFT) {
+        if (record->event.pressed) {
+            pointing_device_set_cpi(TRACKPAD_SHIFT_CPI);
+            send_trackpad_shift_to_slave(true);
+        } else {
+            pointing_device_set_cpi(TRACKPAD_DEFAULT_CPI);
+            send_trackpad_shift_to_slave(false);
+        }
+
         return false;
     }
 

@@ -5,18 +5,43 @@ RGB_MATRIX_EFFECT(REACTIVE_WHITE)
 
 extern const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS];
 
-static hsv_t REACTIVE_WHITE_math(hsv_t hsv, uint16_t offset) {
-#            ifdef RGB_MATRIX_REACTIVE_WHITE_GRADIENT_MODE
-    hsv.h = scale16by8(g_rgb_timer, qadd8(rgb_matrix_config.speed, 8) >> 4);
-#            endif
-    if (offset == 257) {
-        return hsv;
+static void set_underglow_color(uint8_t h, uint8_t s, uint8_t v) {
+    hsv_t hsv = {(h + 256 - 8) % 256, s, v};
+    rgb_t rgb = rgb_matrix_hsv_to_rgb(hsv);
+    for (uint8_t i = 0; i < 6; i++) {
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+}
+
+bool REACTIVE_WHITE_base(effect_params_t* params) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    uint16_t max_tick = 65535 / qadd8(rgb_matrix_config.speed, 1);
+    for (uint8_t i = led_min; i < led_max; i++) {
+        RGB_MATRIX_TEST_LED_FLAGS();
+        uint16_t tick = max_tick;
+        // Reverse search to find most recent key hit
+        for (int8_t j = g_last_hit_tracker.count - 1; j >= 0; j--) {
+            if (g_last_hit_tracker.index[j] == i && g_last_hit_tracker.tick[j] < tick) {
+                tick = g_last_hit_tracker.tick[j];
+                break;
+            }
+        }
+
+        uint16_t offset = scale16by8(tick, qadd8(rgb_matrix_config.speed, 1));
+
+        hsv_t hsv = rgb_matrix_config.hsv;
+        if (offset != 257) {
+            uint8_t min_s = scale8(hsv.s, 120);
+            hsv.s = hsv.s - scale8(255 - offset, hsv.s - min_s);
+        }
+        rgb_t rgb = rgb_matrix_hsv_to_rgb(hsv);
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
 
-    uint8_t min_s = scale8(hsv.s, 120);
-    hsv.s = hsv.s - scale8(255 - offset, hsv.s - min_s);
-    // hsv.h += scale8(255 - offset, 64);
-    return hsv;
+    set_underglow_color(rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, 200);
+
+    return rgb_matrix_check_finished_leds(led_max);
 }
 
 static bool LAYER_COLUMNS(effect_params_t* params) {
@@ -55,6 +80,8 @@ static bool LAYER_COLUMNS(effect_params_t* params) {
         }
     }
 
+    set_underglow_color(on_hsv.h, on_hsv.s, 200);
+
     return rgb_matrix_check_finished_leds(led_max);
 }
 
@@ -82,13 +109,15 @@ static bool MOUSE_KEYS(effect_params_t* params) {
         }
     }
 
+    set_underglow_color(on_hsv.h, on_hsv.s, 200);
+
     return rgb_matrix_check_finished_leds(led_max);
 }
 
 bool REACTIVE_WHITE(effect_params_t* params) {
     uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
     if (active_layer == 0) {
-        return effect_runner_reactive(params, &REACTIVE_WHITE_math);
+        return REACTIVE_WHITE_base(params);
     }
 
     if (active_layer == _MOUSE_KEYS) {

@@ -43,5 +43,6 @@ SRC += qmk-vim/vim.c
 SRC += transactions/key_pos_sync.c
 SRC += transactions/trackpad_pos_sync.c
 SRC += transactions/vim_mode_sync.c
+SRC += transactions/trackpad_shift_sync.c
 
 RGB_MATRIX_CUSTOM_USER = yes
