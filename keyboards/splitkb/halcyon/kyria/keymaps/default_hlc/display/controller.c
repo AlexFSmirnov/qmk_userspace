@@ -10,6 +10,7 @@
 #include "../transactions/vim_mode_sync.h"
 #include "game-of-life/game_of_life.h"
 #include "utils.h"
+#include "notification/notification.h"
 #include "enums.h"
 
 #define LCD_WIDTH 135
@@ -63,6 +64,9 @@ bool display_module_housekeeping_task_user(bool second_display) {
             was_vim_mode_enabled = false;
         }
     }
+
+    // Process notification overlay (always check, as it might need to clear itself)
+    should_redraw = process_notification_display(lcd_surface) || should_redraw;
 
     if (should_redraw) {
         qp_surface_draw(lcd_surface, lcd, 0, 0, false);

@@ -5,6 +5,8 @@ enum custom_keycodes {
     RM_RESET,
     PC_LOCK,
     SENS_SHIFT,
+    DPI_UP,
+    DPI_DOWN,
 };
 
 enum layers {

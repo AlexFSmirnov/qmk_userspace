@@ -166,9 +166,15 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         case MS_BTN7: return "M7";
         case MS_BTN8: return "M8";
 
+        // Modified
+        case LCTL(KC_C): return "^C";
+        case LCTL(KC_V): return "^V";
+
         // Custom keycodes
         case VIM_TOGGLE: return "VIM";
         case PC_LOCK: return "LOCK";
+        case DPI_UP: return "DPI+";
+        case DPI_DOWN: return "DPI-";
 
         default: return "-";
     }

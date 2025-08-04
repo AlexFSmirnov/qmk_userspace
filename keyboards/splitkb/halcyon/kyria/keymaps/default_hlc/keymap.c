@@ -35,7 +35,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT_split_3x6_5_hlc(
      KC_ESC  , KC_Q ,  KC_W   ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P   , KC_BSPC,
      KC_TAB  , KC_A ,  KC_S   ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,  KC_SCLN, KC_QUOT,
-     KC_LCTL , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC, KC_DEL ,    _______, KC_RBRC, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
+     KC_LCTL , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC, KC_DEL ,    MS_BTN1, KC_RBRC, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
                                 KC_LALT, KC_LGUI, KC_LSFT, KC_SPC , SYM    ,    HUB    , KC_ENT , NAV,    FKEYS,  KC_BSLS,
      KC_MUTE, KC_NO,  KC_NO, KC_NO, KC_NO,                                                                KC_MUTE, KC_NO, KC_NO, KC_NO, KC_NO
     ),
@@ -68,7 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * NAV Layer: Navigation keys
  *
  * ,-------------------------------------------.                              ,-------------------------------------------.
- * |        |      |  Up  |      |      |      |                              |      |      |      |      |      |  Del   |
+ * |        |      |  Up  |      |      |      |                              | Copy |      |      |      |Paste |  Del   |
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |        | Left | Down |Right |      |      |                              | Left | Down |  Up  |Right |      |        |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
@@ -81,7 +81,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------'                                              `-----------------------------------'
  */
     [_NAV] = LAYOUT_split_3x6_5_hlc(
-      _______, _______, KC_UP,   _______, _______, _______,                                     _______, _______, _______, _______, _______, KC_DEL,
+      _______, _______, KC_UP,   _______, _______, _______,                                     LCTL(KC_C), _______, _______, _______, LCTL(KC_V), KC_DEL,
       _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,                                     KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
       NAV_UP , KC_LSFT, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_BSPC, _______, _______, _______, _______,
                                  KC_LCTL, _______, _______, _______, _______, _______, _______, _______, _______, _______,
@@ -143,9 +143,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * HUB Layer: random keyboard controls
  *
  * ,-------------------------------------------.                              ,-------------------------------------------.
- * |        |      |      |      |      |      |                              | HUI  | SUI  | VAI  | MOI  |      | TOG    |
+ * |        |      |      |      |      |      |                              | HUI  | SUI  | VAI  | MOI  |DPI + | TOG    |
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |        |      |      |      |      |      |                              | HUD  | SUD  | VAD  | MOD  |      | RESET  |
+ * |        |      |      |      |      |      |                              | HUD  | SUD  | VAD  | MOD  |DPI - | RESET  |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
  * |        |      |      |      |      |      |      |      |  |      |      | VolM | Vol- | Vol+ |      |      | Vim    |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
@@ -156,8 +156,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------'                                              `-----------------------------------'
  */
     [_HUB] = LAYOUT_split_3x6_5_hlc(
-      _______, _______, _______, _______, _______, _______,                                     RM_HUEU, RM_SATU, RM_VALU, RM_NEXT, _______, RM_TOGG,
-      _______, _______, _______, _______, _______, _______,                                     RM_HUED, RM_SATD, RM_VALD, RM_PREV, _______, RM_RESET,
+      _______, _______, _______, _______, _______, _______,                                     RM_HUEU, RM_SATU, RM_VALU, RM_NEXT, DPI_UP, RM_TOGG,
+      _______, _______, _______, _______, _______, _______,                                     RM_HUED, RM_SATD, RM_VALD, RM_PREV, DPI_DOWN, RM_RESET,
       _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______, VIM_TOGGLE,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, PC_LOCK,
 
@@ -183,7 +183,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_MOUSE_KEYS] = LAYOUT_split_3x6_5_hlc(
       _______, _______, _______, _______, _______, _______,                                     MS_BTN2, SENS_SHIFT, SENS_SHIFT, SENS_SHIFT, _______, _______,
       _______, _______, _______, _______, _______, _______,                                     _______, _______, _______, _______, _______, _______,
-      _______, _______, _______, _______, _______, _______, _______, _______, _______, MS_BTN1, _______, _______, _______, _______, _______, _______,
+      _______, _______, _______, _______, _______, _______, _______, _______, MS_BTN1, MS_BTN1, _______, _______, _______, _______, _______, _______,
                                  _______, _______, _______, _______, _______, MS_BTN1, MS_BTN3, _______, _______, _______,
       _______, _______, _______, _______, _______,                                                       _______, _______, _______, _______, _______
     ),
@@ -216,12 +216,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
+    [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D)  },
+    // [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
     [1] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [2] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [3] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [4] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [5] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
-    [6] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
+    [6] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D)  },
+    // [6] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
 };
 #endif

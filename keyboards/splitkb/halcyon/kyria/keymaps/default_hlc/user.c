@@ -11,6 +11,7 @@
 #include "transactions/trackpad_pos_sync.h"
 #include "transactions/vim_mode_sync.h"
 #include "transactions/trackpad_shift_sync.h"
+#include "transactions/trackpad_dpi_sync.h"
 #include "enums.h"
 
 #define VIM_DOUBLE_J_DELAY 300
@@ -26,11 +27,12 @@ void keyboard_post_init_user(void) {
     register_trackpad_pos_sync_handler();
     register_vim_mode_sync_handler();
     register_trackpad_shift_sync_handler();
+    register_trackpad_dpi_sync_handler();
 }
 
 bool module_post_init_user(void) {
     #ifdef HLC_CIRQUE_TRACKPAD
-    pointing_device_set_cpi(TRACKPAD_DEFAULT_CPI);
+    init_trackpad_dpi();
     #endif
 
     sync_vim_mode_to_slave();
@@ -107,6 +109,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return true;
             case RM_RESET:
                 rgb_matrix_mode(RGB_MATRIX_CUSTOM_REACTIVE_WHITE);
+                return false;
+            case DPI_UP:
+                increase_trackpad_dpi();
+                return false;
+            case DPI_DOWN:
+                decrease_trackpad_dpi();
                 return false;
         }
     }

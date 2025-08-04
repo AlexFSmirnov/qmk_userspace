@@ -9,6 +9,7 @@ SRC += user.c
 
 SRC += display/controller.c
 SRC += display/utils.c
+SRC += display/notification/notification.c
 SRC += display/keymap/keycode_strings.c
 SRC += display/keymap/draw_keymap.c
 SRC += display/keymap/process_keymap.c
@@ -44,5 +45,6 @@ SRC += transactions/key_pos_sync.c
 SRC += transactions/trackpad_pos_sync.c
 SRC += transactions/vim_mode_sync.c
 SRC += transactions/trackpad_shift_sync.c
+SRC += transactions/trackpad_dpi_sync.c
 
 RGB_MATRIX_CUSTOM_USER = yes
