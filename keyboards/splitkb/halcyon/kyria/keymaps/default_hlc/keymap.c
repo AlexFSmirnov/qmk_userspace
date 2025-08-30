@@ -7,6 +7,7 @@
 
 // Aliases for readability
 #define QWERTY   DF(_QWERTY)
+#define GAMING   DF(_GAMING)
 
 #define SYM      MO(_SYM)
 #define NAV      MO(_NAV)
@@ -35,8 +36,32 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT_split_3x6_5_hlc(
      KC_ESC  , KC_Q ,  KC_W   ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P   , KC_BSPC,
      KC_TAB  , KC_A ,  KC_S   ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,  KC_SCLN, KC_QUOT,
-     KC_LCTL , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC, KC_DEL ,    MS_BTN1, KC_RBRC, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
+     KC_LCTL , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_MINS, KC_DEL ,    MS_BTN1, MS_BTN1, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
                                 KC_LALT, KC_LGUI, KC_LSFT, KC_SPC , SYM    ,    HUB    , KC_ENT , NAV,    FKEYS,  KC_BSLS,
+     KC_MUTE, KC_NO,  KC_NO, KC_NO, KC_NO,                                                                KC_MUTE, KC_NO, KC_NO, KC_NO, KC_NO
+    ),
+
+/*
+ * Gaming Layer: QWERTY with left side shifted right by one
+ *
+ * ,-------------------------------------------.                              ,-------------------------------------------.
+ * |  Esc   |  Esc |   Q  |   W  |   E  |   R  |                              |   Y  |   U  |   I  |   O  |   P  |  Bksp  |
+ * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+ * |  Tab   |  Tab |   A  |   S  |   D  |   F  |                              |   H  |   J  |   K  |   L  | ;  : |   " '  |
+ * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+ * | LCtrl  | LCtrl|   Z  |   X  |   C  |   V  |   B  | Del  |  |      |  ] } |   N  |   M  | ,  < | . >  | /  ? | Enter  |
+ * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+ *                        | LAlt | LGUI |LShift| Space| Sym  |  | Hub  |Enter | Nav  | FKeys| \  | |
+ *                        `----------------------------------'  `----------------------------------'
+ * ,-----------------------------------.                                              ,-----------------------------------.
+ * | MUTE | ____ | _____ | ____ | ____ |                                              | MUTE | ____ | _____ | ____ | ____ |
+ * `-----------------------------------'                                              `-----------------------------------'
+ */
+    [_GAMING] = LAYOUT_split_3x6_5_hlc(
+     KC_F20  , KC_ESC, KC_Q   ,  KC_W  ,   KC_E ,   KC_R ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P   , KC_BSPC,
+     KC_F19  , KC_LSFT, KC_A   ,  KC_S  ,   KC_D ,   KC_F ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,  KC_SCLN, KC_QUOT,
+     KC_LALT  , KC_LCTL, KC_Z  ,  KC_X  ,   KC_C ,   KC_V , KC_B, KC_DEL ,    MS_BTN1, MS_BTN1, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
+                                KC_1, KC_2, KC_3, KC_SPC , SYM    ,    HUB    , KC_ENT , NAV,    FKEYS,  KC_BSLS,
      KC_MUTE, KC_NO,  KC_NO, KC_NO, KC_NO,                                                                KC_MUTE, KC_NO, KC_NO, KC_NO, KC_NO
     ),
 
@@ -48,7 +73,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |    ~   |  !   |  @   |  #   |  $   |  %   |                              |   ^  |  &   |  *   |  (   |  )   |   +    |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LShift |      |      |      |      |      |      |      |  |      |      |      |      |      |      |  _   |   =    |
+ * | LShift |      |      |      |      |      |      |      |  |      |      |   [  |  ]   |  {   |  }   |  _   |   =    |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
  *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
@@ -57,9 +82,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------'                                              `-----------------------------------'
  */
     [_SYM] = LAYOUT_split_3x6_5_hlc(
-      KC_GRV ,   KC_1 ,   KC_2 ,   KC_3 ,   KC_4 ,   KC_5 ,                                       KC_6 ,   KC_7 ,   KC_8 ,   KC_9 ,   KC_0 , KC_MINS,
+      KC_GRV ,   KC_1 ,   KC_2 ,   KC_3 ,   KC_4 ,   KC_5 ,                                       KC_6 ,   KC_7 ,   KC_8 ,   KC_9 ,   KC_0 , KC_EQL,
      KC_TILD , KC_EXLM,  KC_AT , KC_HASH,  KC_DLR, KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PLUS,
-     KC_LSFT , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_UNDS, KC_EQL,
+     KC_LSFT , _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_LCBR, KC_RCBR, KC_LABK, KC_RABK, KC_LBRC, KC_RBRC,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
      _______, _______,  _______, _______, _______,                                                       _______, _______, _______, _______, _______
     ),
@@ -72,9 +97,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |        | Left | Down |Right |      |      |                              | Left | Down |  Up  |Right |      |        |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |NavShift|LShift|      |      |      |      |      |      |  |      |      |      | Bspc |      |      |      |        |
+ * |        |      |      |      |      |      |      |      |  |      |      |      | Bspc |      |      |      |        |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |LCrtl |      |      |      |      |  |      |      |      |      |      |
+ *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
  * ,-----------------------------------.                                              ,-----------------------------------.
  * |      |      |       |      |      |                                              |      |      |       |      |      |
@@ -83,8 +108,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_NAV] = LAYOUT_split_3x6_5_hlc(
       _______, _______, KC_UP,   _______, _______, _______,                                     LCTL(KC_C), _______, _______, _______, LCTL(KC_V), KC_DEL,
       _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,                                     KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
-      NAV_UP , KC_LSFT, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_BSPC, _______, _______, _______, _______,
-                                 KC_LCTL, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+      _______, _______, _______, _______, _______, _______, KC_LSFT, _______, _______, _______, _______, KC_BSPC, _______, _______, _______, _______,
+                                 _______, _______, NAV_UP,  _______, _______, _______, _______, _______, _______, _______,
 
       _______, _______, _______, _______, _______,                                                       _______, _______, _______, _______, _______
     ),
@@ -147,7 +172,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |        |      |      |      |      |      |                              | HUD  | SUD  | VAD  | MOD  |DPI - | RESET  |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |      |      |      |      |      |      |      |  |      |      | VolM | Vol- | Vol+ |      |      | Vim    |
+ * |        |      |      |      |      |      |      |      |  |      |      | VolM | Vol- | Vol+ |      | Game | Vim    |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
  *                        |      |      |      |      |      |  |      |      |      |      | Lock |
  *                        `----------------------------------'  `----------------------------------'
@@ -158,7 +183,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_HUB] = LAYOUT_split_3x6_5_hlc(
       _______, _______, _______, _______, _______, _______,                                     RM_HUEU, RM_SATU, RM_VALU, RM_NEXT, DPI_UP, RM_TOGG,
       _______, _______, _______, _______, _______, _______,                                     RM_HUED, RM_SATD, RM_VALD, RM_PREV, DPI_DOWN, RM_RESET,
-      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______, VIM_TOGGLE,
+      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_MUTE, KC_VOLD, KC_VOLU, _______, GAMING_TOGGLE, VIM_TOGGLE,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, PC_LOCK,
 
       _______, _______, _______, _______, _______,                                                       _______, _______, _______, _______, _______
@@ -181,10 +206,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------'                                              `-----------------------------------'
  */
     [_MOUSE_KEYS] = LAYOUT_split_3x6_5_hlc(
-      _______, _______, _______, _______, _______, _______,                                     MS_BTN2, SENS_SHIFT, SENS_SHIFT, SENS_SHIFT, _______, _______,
-      _______, _______, _______, _______, _______, _______,                                     _______, _______, _______, _______, _______, _______,
-      _______, _______, _______, _______, _______, _______, _______, _______, MS_BTN1, MS_BTN1, _______, _______, _______, _______, _______, _______,
-                                 _______, _______, _______, _______, _______, MS_BTN1, MS_BTN3, _______, _______, _______,
+      _______, _______, _______, _______, _______, _______,                                     MS_BTN2, _______, _______, _______, _______, _______,
+      _______, _______, _______, _______, _______, _______,                                     MS_BTN3, _______, _______, _______, _______, _______,
+      KC_LCTL, _______, _______, _______, _______, _______, _______, _______, MS_BTN1, MS_BTN1, MS_BTN3, _______, _______, _______, _______, _______,
+                                 KC_LALT, KC_LGUI, KC_LSFT, _______, _______, _______, _______, _______, _______, _______,
       _______, _______, _______, _______, _______,                                                       _______, _______, _______, _______, _______
     ),
 // /*
@@ -218,12 +243,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D)  },
     // [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
-    [1] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
+    [1] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D)  },
+    // [1] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
     [2] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [3] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [4] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [5] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
-    [6] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D)  },
-    // [6] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
+    [6] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
+    [7] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D)  },
+    // [7] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
 };
 #endif

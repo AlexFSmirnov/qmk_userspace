@@ -17,6 +17,7 @@
 #define VIM_DOUBLE_J_DELAY 300
 
 uint16_t vim_j_last_pressed = 0;
+bool gaming_mode_enabled = false;
 
 void sync_vim_mode_to_slave(void) {
     send_vim_mode_to_slave(get_vim_mode(), vim_mode_enabled());
@@ -85,6 +86,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             case VIM_TOGGLE:
                 toggle_vim_mode();
                 sync_vim_mode_to_slave();
+                return false;
+            case GAMING_TOGGLE:
+                gaming_mode_enabled = !gaming_mode_enabled;
+                if (gaming_mode_enabled) {
+                    layer_on(_GAMING);
+                    set_single_persistent_default_layer(_GAMING);
+                } else {
+                    layer_off(_GAMING);
+                    set_single_persistent_default_layer(_QWERTY);
+                }
                 return false;
             case PC_LOCK:
                 tap_code16(LGUI(KC_L));

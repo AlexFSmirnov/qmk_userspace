@@ -121,6 +121,8 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         case KC_RBRC: return "]";
         case KC_LCBR: return "{";
         case KC_RCBR: return "}";
+        case KC_LABK: return "<";
+        case KC_RABK: return ">";
         case KC_PIPE: return "|";
         case KC_BSLS: return "\\";
         case KC_COLN: return ":";
@@ -175,6 +177,7 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         case PC_LOCK: return "LOCK";
         case DPI_UP: return "DPI+";
         case DPI_DOWN: return "DPI-";
+        case GAMING_TOGGLE: return "GAME";
 
         default: return "-";
     }

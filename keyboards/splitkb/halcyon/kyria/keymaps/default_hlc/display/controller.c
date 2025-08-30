@@ -35,7 +35,7 @@ bool display_module_housekeeping_task_user(bool second_display) {
 
     uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
 
-    if (active_layer == 0) {
+    if (active_layer == _QWERTY || active_layer == _GAMING) {
         should_redraw = process_game_of_life_display(lcd_surface) || should_redraw;
         if (should_redraw) {
             clear_vim_header();
