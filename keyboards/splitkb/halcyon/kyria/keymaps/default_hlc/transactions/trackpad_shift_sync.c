@@ -2,6 +2,7 @@
 #include "pointing_device.h"
 #include "transactions.h"
 #include "trackpad_shift_sync.h"
+#include "trackpad_dpi_sync.h"
 
 typedef struct _trackpad_shift_master_to_slave_t {
     bool is_shifted;
@@ -18,7 +19,8 @@ void trackpad_shift_sync_slave_handler(uint8_t in_buflen, const void* in_data, u
     if (slave_trackpad_shifted) {
         pointing_device_set_cpi(TRACKPAD_SHIFT_CPI);
     } else {
-        pointing_device_set_cpi(TRACKPAD_DEFAULT_CPI);
+        // Restore to saved DPI, not default
+        pointing_device_set_cpi(get_synced_trackpad_dpi());
     }
     #endif
 }

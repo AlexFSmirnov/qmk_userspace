@@ -38,9 +38,8 @@ void keyboard_post_init_user(void) {
 }
 
 bool module_post_init_user(void) {
-    #ifdef HLC_CIRQUE_TRACKPAD
+    // Initialize trackpad DPI
     init_trackpad_dpi();
-    #endif
 
     sync_vim_mode_to_slave();
 
@@ -59,6 +58,9 @@ void housekeeping_task_user(void) {
 
     // Process macro playback
     macro_recorder_task();
+
+    // Ensure DPI is synced to slave after init
+    trackpad_dpi_sync_task();
 }
 
 #if defined(ENCODER_MAP_ENABLE)
@@ -171,7 +173,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             pointing_device_set_cpi(TRACKPAD_SHIFT_CPI);
             send_trackpad_shift_to_slave(true);
         } else {
-            pointing_device_set_cpi(TRACKPAD_DEFAULT_CPI);
+            // Restore to saved DPI, not default
+            pointing_device_set_cpi(get_synced_trackpad_dpi());
             send_trackpad_shift_to_slave(false);
         }
 

@@ -7,9 +7,15 @@
 
 // EEPROM storage for DPI settings
 #define EEPROM_DPI_ADDR (0x100)  // User area in EEPROM
+#define DPI_MAGIC 0x4450  // "DP" for DPI
 #define DPI_STEP 50
 #define DPI_MIN 100
 #define DPI_MAX 1000
+
+typedef struct {
+    uint16_t magic;
+    uint16_t dpi;
+} dpi_eeprom_t;
 
 typedef struct _trackpad_dpi_master_to_slave_t {
     uint16_t dpi;
@@ -49,35 +55,63 @@ uint16_t get_synced_trackpad_dpi(void) {
 }
 
 void save_trackpad_dpi_to_eeprom(uint16_t dpi) {
-    eeprom_write_block((void*)&dpi, (void*)EEPROM_DPI_ADDR, sizeof(dpi));
+    dpi_eeprom_t data = {
+        .magic = DPI_MAGIC,
+        .dpi = dpi
+    };
+    eeprom_update_block((const void*)&data, (void*)((uintptr_t)EEPROM_DPI_ADDR), sizeof(data));
 }
 
 uint16_t load_trackpad_dpi_from_eeprom(void) {
-    uint16_t dpi;
-    eeprom_read_block((void*)&dpi, (void*)EEPROM_DPI_ADDR, sizeof(dpi));
+    dpi_eeprom_t data;
+    eeprom_read_block((void*)&data, (const void*)((uintptr_t)EEPROM_DPI_ADDR), sizeof(data));
 
-    // Validate the loaded DPI value (check for uninitialized EEPROM)
-    if (dpi == 0xFFFF || dpi < DPI_MIN || dpi > DPI_MAX) {
-        dpi = TRACKPAD_DEFAULT_CPI;
+    // Validate magic number and DPI value
+    if (data.magic != DPI_MAGIC || data.dpi < DPI_MIN || data.dpi > DPI_MAX) {
+        // EEPROM not initialized or corrupted, use default
+        uint16_t default_dpi = 550;
+        save_trackpad_dpi_to_eeprom(default_dpi);  // Initialize EEPROM
+        return default_dpi;
     }
 
-    return dpi;
+    return data.dpi;
 }
 
+static bool dpi_synced_to_slave = false;
+
 void init_trackpad_dpi(void) {
-    current_trackpad_dpi = load_trackpad_dpi_from_eeprom();
+    if (is_keyboard_master()) {
+        current_trackpad_dpi = load_trackpad_dpi_from_eeprom();
 
-    #ifdef HLC_CIRQUE_TRACKPAD
-    pointing_device_set_cpi(current_trackpad_dpi);
-    #endif
+        #ifdef HLC_CIRQUE_TRACKPAD
+        pointing_device_set_cpi(current_trackpad_dpi);
+        #endif
 
-    // Sync to slave
-    send_trackpad_dpi_to_slave(current_trackpad_dpi);
+        // Mark that we need to sync to slave
+        dpi_synced_to_slave = false;
 
-    // Show current DPI on startup
-    char dpi_message[16];
-    snprintf(dpi_message, sizeof(dpi_message), "DPI: %d", current_trackpad_dpi);
-    send_notification(dpi_message, 2000); // Show for 2 seconds on startup
+        // Show current DPI on startup
+        char dpi_message[16];
+        snprintf(dpi_message, sizeof(dpi_message), "DPI: %d", current_trackpad_dpi);
+        send_notification(dpi_message, 2000); // Show for 2 seconds on startup
+    }
+}
+
+// Call this from housekeeping to ensure slave gets the DPI after init
+void trackpad_dpi_sync_task(void) {
+    if (!is_keyboard_master()) {
+        return;
+    }
+
+    // Keep syncing until successful (or for first few seconds)
+    static uint16_t sync_attempts = 0;
+    if (!dpi_synced_to_slave && sync_attempts < 100) {  // Try for ~1 second
+        send_trackpad_dpi_to_slave(current_trackpad_dpi);
+        sync_attempts++;
+        if (sync_attempts >= 10) {  // After 10 attempts, consider it done
+            dpi_synced_to_slave = true;
+        }
+    }
 }
 
 bool increase_trackpad_dpi(void) {
