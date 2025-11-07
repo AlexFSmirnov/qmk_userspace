@@ -76,12 +76,48 @@ void macro_recorder_play(uint8_t slot) {
         return;
     }
 
+    // Don't restart if already playing this slot (prevents double trigger)
+    if (recorder_state.playback_active && recorder_state.playback_slot == slot) {
+        return;
+    }
+
     // Stop any existing playback or recording
     macro_recorder_stop_playback();
     macro_recorder_stop_recording();
 
-    // Start playback immediately
+    // Start playback immediately (normal speed with delays)
     recorder_state.playback_active = true;
+    recorder_state.playback_fast_mode = false;
+    recorder_state.playback_slot = slot;
+    recorder_state.playback_index = 0;
+    recorder_state.playback_next_time = 0;  // Start immediately
+}
+
+void macro_recorder_play_fast(uint8_t slot) {
+    if (slot >= MAX_MACRO_SLOTS) {
+        return;
+    }
+
+    if (!recorder_state.macros[slot].has_content) {
+        return;
+    }
+
+    if (recorder_state.macros[slot].event_count == 0) {
+        return;
+    }
+
+    // Don't restart if already playing this slot (prevents double trigger)
+    if (recorder_state.playback_active && recorder_state.playback_slot == slot) {
+        return;
+    }
+
+    // Stop any existing playback or recording
+    macro_recorder_stop_playback();
+    macro_recorder_stop_recording();
+
+    // Start playback immediately (fast mode without delays)
+    recorder_state.playback_active = true;
+    recorder_state.playback_fast_mode = true;
     recorder_state.playback_slot = slot;
     recorder_state.playback_index = 0;
     recorder_state.playback_next_time = 0;  // Start immediately
@@ -128,9 +164,14 @@ void macro_recorder_task(void) {
 
     // Check if it's time to process the next event
     uint32_t now = timer_read32();
-    if (recorder_state.playback_next_time != 0 && TIMER_DIFF_32(now, recorder_state.playback_next_time) < 0) {
-        // Not time yet
-        return;
+    if (recorder_state.playback_next_time != 0) {
+        // Check if we've reached the target time
+        // Use signed comparison to handle timer wraparound
+        int32_t time_remaining = (int32_t)(recorder_state.playback_next_time - now);
+        if (time_remaining > 0) {
+            // Not time yet - still waiting
+            return;
+        }
     }
 
     // Get current event
@@ -159,7 +200,7 @@ void macro_recorder_task(void) {
             break;
 
         case MACRO_EVENT_MOUSE_MOVE: {
-            // Simulate mouse movement
+            // Simulate mouse movement - apply the delta movement
             report_mouse_t mouse_report = pointing_device_get_report();
             mouse_report.x = event->data.mouse.x;
             mouse_report.y = event->data.mouse.y;
@@ -169,7 +210,13 @@ void macro_recorder_task(void) {
         }
 
         case MACRO_EVENT_DELAY:
-            // Schedule next event after delay
+            // In fast mode, skip delays completely
+            if (recorder_state.playback_fast_mode) {
+                recorder_state.playback_index++;
+                recorder_state.playback_next_time = 0; // Process next event immediately
+                return;
+            }
+            // In normal mode, schedule next event after the recorded delay
             recorder_state.playback_next_time = timer_read32() + event->data.delay.duration_ms;
             recorder_state.playback_index++;
             return;
@@ -178,8 +225,9 @@ void macro_recorder_task(void) {
     // Move to next event
     recorder_state.playback_index++;
 
-    // For non-delay events, add a small default delay
-    recorder_state.playback_next_time = timer_read32() + 10;
+    // No default delay - we record all delays now!
+    // Just trigger next event immediately (on next task call)
+    recorder_state.playback_next_time = 0;
 }
 
 void macro_recorder_record_key_down(uint16_t keycode, uint8_t mods) {
@@ -194,11 +242,13 @@ void macro_recorder_record_key_down(uint16_t keycode, uint8_t mods) {
         return;  // Macro is full
     }
 
-    // Calculate time since last event and add delay if significant
+    // Calculate time since last event and add delay to preserve timing
     uint32_t current_time = timer_read32();
     uint32_t time_diff = TIMER_DIFF_32(current_time, macro->last_event_time);
 
-    if (time_diff > 50 && macro->event_count > 0) {  // More than 50ms delay
+    // ALWAYS record delays (even 0ms) to preserve exact timing
+    // Only skip delay for the very first event
+    if (macro->event_count > 0) {
         macro_event_t delay_event = {
             .type = MACRO_EVENT_DELAY,
             .data.delay.duration_ms = time_diff
@@ -233,6 +283,24 @@ void macro_recorder_record_key_up(uint16_t keycode, uint8_t mods) {
         return;
     }
 
+    // Calculate time since last event and add delay to preserve timing
+    uint32_t current_time = timer_read32();
+    uint32_t time_diff = TIMER_DIFF_32(current_time, macro->last_event_time);
+
+    // ALWAYS record delays (even 0ms) to preserve exact timing
+    // Only skip delay for the very first event
+    if (macro->event_count > 0) {
+        macro_event_t delay_event = {
+            .type = MACRO_EVENT_DELAY,
+            .data.delay.duration_ms = time_diff
+        };
+        macro->events[macro->event_count++] = delay_event;
+
+        if (macro->event_count >= MAX_MACRO_ACTIONS) {
+            return;
+        }
+    }
+
     // Record key up event
     macro_event_t event = {
         .type = MACRO_EVENT_KEY_UP,
@@ -241,7 +309,7 @@ void macro_recorder_record_key_up(uint16_t keycode, uint8_t mods) {
     };
 
     macro->events[macro->event_count++] = event;
-    macro->last_event_time = timer_read32();
+    macro->last_event_time = current_time;
 }
 
 void macro_recorder_record_encoder(uint8_t encoder_id, bool clockwise) {
@@ -256,11 +324,13 @@ void macro_recorder_record_encoder(uint8_t encoder_id, bool clockwise) {
         return;
     }
 
-    // Calculate time since last event and add delay if significant
+    // Calculate time since last event and add delay to preserve timing
     uint32_t current_time = timer_read32();
     uint32_t time_diff = TIMER_DIFF_32(current_time, macro->last_event_time);
 
-    if (time_diff > 50 && macro->event_count > 0) {  // More than 50ms delay
+    // ALWAYS record delays (even 0ms) to preserve exact timing
+    // Only skip delay for the very first event
+    if (macro->event_count > 0) {
         macro_event_t delay_event = {
             .type = MACRO_EVENT_DELAY,
             .data.delay.duration_ms = time_diff
@@ -293,11 +363,26 @@ void macro_recorder_record_mouse_move(int8_t x, int8_t y) {
         return;
     }
 
-    // Calculate time since last event and add delay if significant
     uint32_t current_time = timer_read32();
+
+    // Throttle mouse recording to reduce number of events
+    // Only record if at least 30ms has passed since last mouse event
+    static uint32_t last_mouse_time = 0;
+    uint32_t time_since_last_mouse = TIMER_DIFF_32(current_time, last_mouse_time);
+
+    if (time_since_last_mouse < 30) {
+        // Too soon, skip this movement
+        return;
+    }
+
+    last_mouse_time = current_time;
+
+    // Calculate time since last event (of any type) and add delay to preserve timing
     uint32_t time_diff = TIMER_DIFF_32(current_time, macro->last_event_time);
 
-    if (time_diff > 50 && macro->event_count > 0) {  // More than 50ms delay
+    // ALWAYS record delays (even 0ms) to preserve exact timing
+    // Only skip delay for the very first event
+    if (macro->event_count > 0) {
         macro_event_t delay_event = {
             .type = MACRO_EVENT_DELAY,
             .data.delay.duration_ms = time_diff
@@ -325,6 +410,13 @@ bool macro_recorder_is_recording(void) {
 
 bool macro_recorder_is_playing(void) {
     return recorder_state.playback_active;
+}
+
+bool macro_recorder_has_content(uint8_t slot) {
+    if (slot >= MAX_MACRO_SLOTS) {
+        return false;
+    }
+    return recorder_state.macros[slot].has_content;
 }
 
 uint8_t macro_recorder_get_current_slot(void) {

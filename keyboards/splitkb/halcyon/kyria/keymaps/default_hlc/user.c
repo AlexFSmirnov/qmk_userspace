@@ -96,8 +96,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 // Stop recording if already recording this slot
                 macro_recorder_stop_recording();
                 send_macro_state_to_slave(false, slot, 0);
+            } else if (macro_recorder_has_content(slot)) {
+                // If macro exists, play it back in fast mode (no delays)
+                if (macro_recorder_is_playing()) {
+                    macro_recorder_stop_playback();
+                }
+                macro_recorder_play_fast(slot);
             } else {
-                // Start recording (will stop any existing recording first)
+                // If no macro exists, start recording
                 macro_recorder_start_recording(slot);
                 send_macro_state_to_slave(true, slot, 0);
             }

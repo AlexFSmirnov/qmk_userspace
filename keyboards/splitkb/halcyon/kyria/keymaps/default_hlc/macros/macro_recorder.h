@@ -4,10 +4,12 @@
 #include <stdint.h>
 
 // Maximum number of macro slots
-#define MAX_MACRO_SLOTS 10
+#define MAX_MACRO_SLOTS 5
 
 // Maximum number of actions per macro
-#define MAX_MACRO_ACTIONS 128
+// Increased from 128 to 512 to handle long mouse movement sequences
+// We can afford this because we reduced slots from 10 to 5
+#define MAX_MACRO_ACTIONS 512
 
 // Macro event types
 typedef enum {
@@ -55,6 +57,7 @@ typedef struct {
     uint8_t current_slot;  // Which slot we're recording to
     uint8_t playback_slot; // Which slot we're playing back
     bool playback_active;
+    bool playback_fast_mode; // If true, skip delays during playback
     uint16_t playback_index;
     uint32_t playback_next_time;
     macro_t macros[MAX_MACRO_SLOTS];
@@ -65,6 +68,7 @@ void macro_recorder_init(void);
 void macro_recorder_start_recording(uint8_t slot);
 void macro_recorder_stop_recording(void);
 void macro_recorder_play(uint8_t slot);
+void macro_recorder_play_fast(uint8_t slot); // Play without delays
 void macro_recorder_stop_playback(void);
 void macro_recorder_clear(uint8_t slot);
 void macro_recorder_task(void);
@@ -78,6 +82,7 @@ void macro_recorder_record_mouse_move(int8_t x, int8_t y);
 // State query functions
 bool macro_recorder_is_recording(void);
 bool macro_recorder_is_playing(void);
+bool macro_recorder_has_content(uint8_t slot);
 uint8_t macro_recorder_get_current_slot(void);
 uint16_t macro_recorder_get_recorded_count(void);
 bool macro_recorder_slot_has_content(uint8_t slot);
