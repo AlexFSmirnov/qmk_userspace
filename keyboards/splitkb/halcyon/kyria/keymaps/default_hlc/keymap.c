@@ -10,6 +10,7 @@
 #define GAMING   DF(_GAMING)
 
 #define SYM      MO(_SYM)
+#define GAMING_UP   MO(_GAMING_UP)
 #define NAV      MO(_NAV)
 #define NAV_UP   MO(_NAV_UP)
 #define FKEYS    MO(_FKEYS)
@@ -36,8 +37,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT_split_3x6_5_hlc(
      KC_ESC  , KC_Q ,  KC_W   ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P   , KC_BSPC,
      KC_TAB  , KC_A ,  KC_S   ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,  KC_SCLN, KC_QUOT,
-     KC_LCTL , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_MINS, KC_DEL ,    MS_BTN1, MS_BTN1, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
-                                KC_LALT, KC_LGUI, KC_LSFT, KC_SPC , SYM    ,    HUB    , KC_ENT , NAV,    FKEYS,  KC_BSLS,
+     KC_LCTL , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_MINS, HUB ,       MS_BTN1, MS_BTN1, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
+                                KC_LALT, KC_LGUI, KC_LSFT, KC_SPC , SYM    ,    SYM    , KC_ENT , NAV,    FKEYS,  KC_BSLS,
      KC_MUTE, KC_NO,  KC_NO, KC_NO, KC_NO,                                                                KC_MUTE, KC_NO, KC_NO, KC_NO, KC_NO
     ),
 
@@ -60,9 +61,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_GAMING] = LAYOUT_split_3x6_5_hlc(
      KC_F20  , KC_ESC, KC_Q   ,  KC_W  ,   KC_E ,   KC_R ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P   , KC_BSPC,
      KC_TAB  , KC_LSFT, KC_A   ,  KC_S  ,   KC_D ,   KC_F ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,  KC_SCLN, KC_QUOT,
-     KC_LALT  , KC_LCTL, KC_Z  ,  KC_X  ,   KC_C ,   KC_V , KC_B, SYM ,    MS_BTN1, MS_BTN1, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
-                                KC_1, KC_2, KC_SPC , KC_3, KC_4    ,    HUB    , KC_ENT , NAV,    FKEYS,  KC_BSLS,
+     KC_LALT  , KC_LCTL, KC_Z  ,  KC_X  ,   KC_C ,   KC_V , KC_B, HUB ,    MS_BTN1, MS_BTN1, KC_N,   KC_M ,  KC_COMM, KC_DOT ,KC_SLSH, KC_ENT,
+                                KC_1, KC_2, KC_C , KC_SPC, GAMING_UP    ,    SYM    , KC_ENT , NAV,    FKEYS,  KC_BSLS,
      KC_MUTE, KC_NO,  KC_NO, KC_NO, KC_NO,                                                                KC_MUTE, KC_NO, KC_NO, KC_NO, KC_NO
+    ),
+
+/*
+ * Gaming Shift Layer: extra layer for gaming mode
+ *
+ * ,-------------------------------------------.                              ,-------------------------------------------.
+ * |        |      |      |      |      |      |                              |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+ * |        |      |      |      |      |      |                              |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+ * |        |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |        |
+ * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+ *                        |      |      |      |      |      |  |      |      |      |      |      |
+ *                        |      |      |      |      |      |  |      |      |      |      |      |
+ *                        `----------------------------------'  `----------------------------------'
+ * ,-----------------------------------.                                              ,-----------------------------------.
+ * |      |      |       |      |      |                                              |      |      |       |      |      |
+ * `-----------------------------------'                                              `-----------------------------------'
+ */
+    [_GAMING_UP] = LAYOUT_split_3x6_5_hlc(
+      _______, _______, KC_1   , KC_2   , KC_3   , KC_T   ,                                     _______, _______, _______, _______, _______, _______,
+      _______, _______, KC_4   , KC_5   , KC_6   , KC_G   ,                                     _______, _______, _______, _______, _______, _______,
+      _______, _______, KC_7   , KC_8   , KC_9   , KC_B   , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                                 _______, KC_0   , _______, _______, _______, _______, _______, _______, _______, _______,
+
+      _______, _______, _______, _______, _______,                                                       _______, _______, _______, _______, _______
     ),
 
 /*
@@ -82,9 +109,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------'                                              `-----------------------------------'
  */
     [_SYM] = LAYOUT_split_3x6_5_hlc(
-      KC_GRV ,   KC_1 ,   KC_2 ,   KC_3 ,   KC_4 ,   KC_5 ,                                       KC_6 ,   KC_7 ,   KC_8 ,   KC_9 ,   KC_0 , KC_EQL,
-     KC_TILD , KC_EXLM,  KC_AT , KC_HASH,  KC_DLR, KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PLUS,
-     KC_LSFT , _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_LCBR, KC_RCBR, KC_LABK, KC_RABK, KC_LBRC, KC_RBRC,
+      KC_GRV ,   KC_1 ,   KC_2 ,   KC_3 ,   KC_4 ,   KC_5 ,                                       KC_6 ,   KC_7 ,   KC_8 ,   KC_9 ,   KC_0 , KC_MINS,
+     KC_TILD , KC_EXLM,  KC_AT , KC_HASH,  KC_DLR, KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_EQL,
+     _______ , _______, KC_LABK, KC_LBRC, KC_LPRN, KC_LCBR, _______, _______, _______, _______, KC_RCBR, KC_RPRN, KC_RBRC, KC_RABK, _______, KC_PLUS,
+
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
      _______, _______,  _______, _______, _______,                                                       _______, _______, _______, _______, _______
     ),
@@ -106,10 +134,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------'                                              `-----------------------------------'
  */
     [_NAV] = LAYOUT_split_3x6_5_hlc(
-      _______, _______, KC_UP,   _______, _______, _______,                                     LCTL(KC_C), _______, _______, _______, LCTL(KC_V), KC_DEL,
-      _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,                                     KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
+      _______, _______, _______,   KC_UP, _______, _______,                                     LCTL(KC_C), _______, _______, _______, LCTL(KC_V), KC_DEL,
+      _______, _______, KC_LEFT, KC_DOWN, KC_RGHT, _______,                                     KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
       _______, _______, _______, _______, _______, _______, KC_LSFT, _______, _______, _______, _______, KC_BSPC, _______, _______, _______, _______,
-                                 _______, _______, NAV_UP,  _______, _______, _______, _______, _______, _______, _______,
+                                 _______, _______, NAV_UP,  KC_DEL, _______, _______, _______, _______, _______, _______,
 
       _______, _______, _______, _______, _______,                                                       _______, _______, _______, _______, _______
     ),
@@ -131,8 +159,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------'                                              `-----------------------------------'
  */
     [_NAV_UP] = LAYOUT_split_3x6_5_hlc(
-      _______, _______, KC_UP,   _______, _______, _______,                                     _______, _______, _______, _______, _______, KC_DEL,
-      _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,                                     KC_HOME, KC_DOWN, KC_UP  , KC_END , _______, _______,
+      _______, _______, _______,   KC_UP, _______, _______,                                     _______, _______, _______, _______, _______, KC_DEL,
+      _______, _______, KC_LEFT, KC_DOWN, KC_RGHT, _______,                                     KC_HOME, KC_DOWN, KC_UP  , KC_END , _______, _______,
       _______, KC_LSFT, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
                                  KC_LCTL, _______, _______, _______, _______, _______, _______, _______, _______, _______,
 
@@ -181,10 +209,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------'                                              `-----------------------------------'
  */
     [_HUB] = LAYOUT_split_3x6_5_hlc(
-      _______, _______, _______, _______, _______, _______,                                     RM_HUEU, RM_SATU, RM_VALU, RM_NEXT, DPI_UP, RM_TOGG,
-      _______, _______, _______, _______, _______, _______,                                     RM_HUED, RM_SATD, RM_VALD, RM_PREV, DPI_DOWN, RM_RESET,
-      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_MUTE, KC_VOLD, KC_VOLU, _______, GAMING_TOGGLE, VIM_TOGGLE,
-                                 _______, _______, _______, _______, _______, _______, _______, _______, _______, PC_LOCK,
+      _______, _______, RM_HUEU, RM_SATU, RM_VALU, GAMING_TOGGLE,                                    GAMING_TOGGLE, _______, _______, RM_NEXT, DPI_UP, RM_TOGG,
+      _______, _______, RM_HUED, RM_SATD, RM_VALD, _______,                                    VIM_TOGGLE, _______, _______, RM_PREV, DPI_DOWN, RM_RESET,
+      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______, _______,
+                                 PC_LOCK, _______, _______, _______, _______, _______, _______, _______, _______, PC_LOCK,
 
       _______, _______, _______, _______, _______,                                                       _______, _______, _______, _______, _______
     ),
@@ -250,7 +278,8 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [4] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [5] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
     [6] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
-    [7] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D)  },
+    [7] = { ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______),  ENCODER_CCW_CW(_______, _______)  },
+    [8] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D),  ENCODER_CCW_CW(KC_WH_U, KC_WH_D)  },
     // [7] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_VOLD, KC_VOLU),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U),  ENCODER_CCW_CW(KC_WH_D, KC_WH_U)  },
 };
 #endif

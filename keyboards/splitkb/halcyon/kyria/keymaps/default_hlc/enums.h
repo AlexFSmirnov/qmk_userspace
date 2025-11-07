@@ -13,6 +13,7 @@ enum custom_keycodes {
 enum layers {
     _QWERTY = 0,
     _GAMING,
+    _GAMING_UP,
     _SYM,
     _NAV,
     _NAV_UP,
