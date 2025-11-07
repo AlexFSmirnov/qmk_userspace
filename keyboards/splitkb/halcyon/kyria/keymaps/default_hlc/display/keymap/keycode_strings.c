@@ -157,6 +157,7 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         case MO(_NAV_UP): return "^";
         case MO(_FKEYS): return "FNC";
         case MO(_HUB): return "HUB";
+        case MO(_MACROS): return "MACR";
 
         // Mouse keys
         case MS_BTN1: return "LMB";
@@ -178,6 +179,39 @@ const char* get_keycode_string_hlc(uint16_t keycode) {
         case DPI_UP: return "DPI+";
         case DPI_DOWN: return "DPI-";
         case GAMING_TOGGLE: return "GAME";
+
+        // Macro keycodes
+        case MACRO_REC_1: return "REC1";
+        case MACRO_REC_2: return "REC2";
+        case MACRO_REC_3: return "REC3";
+        case MACRO_REC_4: return "REC4";
+        case MACRO_REC_5: return "REC5";
+        case MACRO_REC_6: return "REC6";
+        case MACRO_REC_7: return "REC7";
+        case MACRO_REC_8: return "REC8";
+        case MACRO_REC_9: return "REC9";
+        case MACRO_REC_10: return "RC10";
+        case MACRO_PLAY_1: return "M1";
+        case MACRO_PLAY_2: return "M2";
+        case MACRO_PLAY_3: return "M3";
+        case MACRO_PLAY_4: return "M4";
+        case MACRO_PLAY_5: return "M5";
+        case MACRO_PLAY_6: return "M6";
+        case MACRO_PLAY_7: return "M7";
+        case MACRO_PLAY_8: return "M8";
+        case MACRO_PLAY_9: return "M9";
+        case MACRO_PLAY_10: return "M10";
+        case MACRO_STOP: return "STOP";
+        case MACRO_CLEAR_1: return "CLR1";
+        case MACRO_CLEAR_2: return "CLR2";
+        case MACRO_CLEAR_3: return "CLR3";
+        case MACRO_CLEAR_4: return "CLR4";
+        case MACRO_CLEAR_5: return "CLR5";
+        case MACRO_CLEAR_6: return "CLR6";
+        case MACRO_CLEAR_7: return "CLR7";
+        case MACRO_CLEAR_8: return "CLR8";
+        case MACRO_CLEAR_9: return "CLR9";
+        case MACRO_CLEAR_10: return "CLR10";
 
         default: return "-";
     }

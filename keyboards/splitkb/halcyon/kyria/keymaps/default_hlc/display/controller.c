@@ -8,9 +8,11 @@
 #include "qmk-vim/vim.h"
 #include "vim-header/vim-header.h"
 #include "../transactions/vim_mode_sync.h"
+#include "../transactions/macro_state_sync.h"
 #include "game-of-life/game_of_life.h"
 #include "utils.h"
 #include "notification/notification.h"
+#include "macro-status/macro-status.h"
 #include "enums.h"
 
 #define LCD_WIDTH 135
@@ -67,6 +69,17 @@ bool display_module_housekeeping_task_user(bool second_display) {
 
     // Process notification overlay (always check, as it might need to clear itself)
     should_redraw = process_notification_display(lcd_surface) || should_redraw;
+
+    // Process macro status display (shows recording status)
+    // Check on slave side if master is recording
+    #ifdef SPLIT_KEYBOARD
+    if (!is_keyboard_master()) {
+        if (get_synced_macro_recording_state()) {
+            should_redraw = true;
+        }
+    }
+    #endif
+    should_redraw = process_macro_status_display(lcd_surface) || should_redraw;
 
     if (should_redraw) {
         qp_surface_draw(lcd_surface, lcd, 0, 0, false);

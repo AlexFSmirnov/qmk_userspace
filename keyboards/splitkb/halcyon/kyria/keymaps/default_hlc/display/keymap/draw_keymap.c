@@ -13,6 +13,8 @@
 #include "../images/icons/mute.qgf.h"
 #include "../images/icons/volume_down.qgf.h"
 #include "../images/icons/volume_up.qgf.h"
+#include "../../macros/macro_recorder.h"
+#include "../../enums.h"
 
 #define BORDER_COLOR 0, 0, 100
 
@@ -104,14 +106,59 @@ static painter_image_handle_t get_icon_for_label(const char* label) {
 }
 
 // Function to draw a key label at the specified position
-void draw_key_label(painter_device_t surface, int x, int y, int row, int col, const char* label) {
+void draw_key_label(painter_device_t surface, int x, int y, int row, int col, const char* label, bool is_left_side) {
     // Initialize icons if needed
     init_icons();
 
     hsv_t hsv = rgb_matrix_config.hsv;
 
     uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
-    if (active_layer != 0) {
+
+    // Special handling for macro layer - show keys with macros in white
+    if (active_layer == _MACROS) {
+        extern const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS];
+
+        // Need to convert display position to keyboard matrix position for left side
+        // because draw_key_label receives display row/col, not keyboard row/col
+        int keyboard_row = row;
+        int keyboard_col = is_left_side ? (6 - col) : col;
+
+        uint16_t keycode = pgm_read_word(&keymaps[active_layer][keyboard_row][keyboard_col]);
+
+        if (keycode >= MACRO_REC_1 && keycode <= MACRO_REC_10) {
+            uint8_t slot = keycode - MACRO_REC_1;
+            if (macro_recorder_is_recording() && macro_recorder_get_current_slot() == slot) {
+                // Red: Currently recording this slot
+                hsv.h = 0;
+                hsv.s = 255;
+                hsv.v = 255;
+            } else if (macro_recorder_slot_has_content(slot)) {
+                // Yellow: Has content (will overwrite if you press)
+                hsv.h = 43;
+                hsv.s = 255;
+                hsv.v = 255;
+            } else {
+                // Green: Empty, ready to record
+                hsv.h = 85;
+                hsv.s = 255;
+                hsv.v = 255;
+            }
+        } else if (keycode >= MACRO_PLAY_1 && keycode <= MACRO_PLAY_10) {
+            uint8_t slot = keycode - MACRO_PLAY_1;
+            // PLAY keys: White if macro exists
+            if (macro_recorder_slot_has_content(slot)) {
+                hsv.s = 0;  // White for keys with macros
+            }
+        } else if (keycode >= MACRO_CLEAR_1 && keycode <= MACRO_CLEAR_10) {
+            uint8_t slot = keycode - MACRO_CLEAR_1;
+            // CLEAR keys: Red when there's content to clear
+            if (macro_recorder_slot_has_content(slot)) {
+                hsv.h = 0;
+                hsv.s = 255;
+                hsv.v = 255;
+            }
+        }
+    } else if (active_layer != 0) {
         if (row < 3) {
             if ((col % 4) >= 2) {
                 hsv.s = 0;
@@ -170,12 +217,12 @@ void draw_key_label(painter_device_t surface, int x, int y, int row, int col, co
 }
 
 // Function to draw a complete key (clear, label, border)
-void draw_key(painter_device_t surface, int x, int y, int row, int col, const char* label) {
+void draw_key(painter_device_t surface, int x, int y, int row, int col, const char* label, bool is_left_side) {
     // Clear the rectangle
     qp_rect(surface, x, y, x + square_width, y + square_height, HSV_BLACK, 1);
 
     // Draw the label
-    draw_key_label(surface, x, y, row, col, label);
+    draw_key_label(surface, x, y, row, col, label, is_left_side);
 
     // Draw the border
     qp_rect(surface, x, y, x + square_width, y + square_height, BORDER_COLOR, 0);
@@ -201,7 +248,7 @@ void draw_layout_grid(painter_device_t surface, int x, int y, bool mirrored, con
 
         for (int row = 0; row < rows; row++) {
             int square_y = col_y + (row * square_height);
-            draw_key(surface, col_x, square_y, row, actual_col, keymap[row][actual_col]);
+            draw_key(surface, col_x, square_y, row, actual_col, keymap[row][actual_col], mirrored);
         }
     }
 
@@ -212,7 +259,7 @@ void draw_layout_grid(painter_device_t surface, int x, int y, bool mirrored, con
         int col_x = x_offset + (actual_col * square_width);
         for (int row = 0; row < 2; row++) {
             int square_y = y + rows * square_height + thumb_offsets[col] + (row * square_height) + thumb_row_offset;
-            draw_key(surface, col_x, square_y, row + 3, actual_col, keymap[row + 3][actual_col]);
+            draw_key(surface, col_x, square_y, row + 3, actual_col, keymap[row + 3][actual_col], mirrored);
         }
     }
 
@@ -221,6 +268,6 @@ void draw_layout_grid(painter_device_t surface, int x, int y, bool mirrored, con
         int actual_col = mirrored ? (columns - 1 - col) : col; // Reverse order when mirrored
         int col_x = x_offset + (actual_col * square_width);
         int square_y = y + rows * square_height + thumb_offsets[col] + square_height + thumb_row_offset;
-        draw_key(surface, col_x, square_y, 4, actual_col, keymap[4][actual_col]);
+        draw_key(surface, col_x, square_y, 4, actual_col, keymap[4][actual_col], mirrored);
     }
 }

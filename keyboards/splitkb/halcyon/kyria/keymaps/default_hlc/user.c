@@ -12,6 +12,8 @@
 #include "transactions/vim_mode_sync.h"
 #include "transactions/trackpad_shift_sync.h"
 #include "transactions/trackpad_dpi_sync.h"
+#include "transactions/macro_state_sync.h"
+#include "macros/macro_recorder.h"
 #include "enums.h"
 
 #define VIM_DOUBLE_J_DELAY 300
@@ -29,6 +31,10 @@ void keyboard_post_init_user(void) {
     register_vim_mode_sync_handler();
     register_trackpad_shift_sync_handler();
     register_trackpad_dpi_sync_handler();
+    register_macro_state_sync_handler();
+
+    // Initialize macro recorder
+    macro_recorder_init();
 }
 
 bool module_post_init_user(void) {
@@ -50,18 +56,106 @@ void housekeeping_task_user(void) {
     if (is_synced_vim_mode_outdated()) {
         sync_vim_mode_to_slave();
     }
+
+    // Process macro playback
+    macro_recorder_task();
 }
+
+#if defined(ENCODER_MAP_ENABLE)
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    // Record encoder movement in macro if recording
+    if (macro_recorder_is_recording()) {
+        macro_recorder_record_encoder(index, clockwise);
+        send_macro_state_to_slave(true, macro_recorder_get_current_slot(), macro_recorder_get_recorded_count());
+    }
+
+    return true;
+}
+#endif
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     if (mouse_report.x != 0 || mouse_report.y != 0) {
         register_trackpad_movement(mouse_report.x, mouse_report.y);
         send_trackpad_pos_to_slave(mouse_report.x, mouse_report.y);
+
+        // Record mouse movement in macro if recording
+        if (macro_recorder_is_recording()) {
+            macro_recorder_record_mouse_move(mouse_report.x, mouse_report.y);
+        }
     }
 
     return mouse_report;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Handle macro keycodes first
+    if (keycode >= MACRO_REC_1 && keycode <= MACRO_REC_10) {
+        if (record->event.pressed) {
+            uint8_t slot = keycode - MACRO_REC_1;
+            if (macro_recorder_is_recording() && macro_recorder_get_current_slot() == slot) {
+                // Stop recording if already recording this slot
+                macro_recorder_stop_recording();
+                send_macro_state_to_slave(false, slot, 0);
+            } else {
+                // Start recording (will stop any existing recording first)
+                macro_recorder_start_recording(slot);
+                send_macro_state_to_slave(true, slot, 0);
+            }
+        }
+        return false;
+    }
+
+    if (keycode >= MACRO_PLAY_1 && keycode <= MACRO_PLAY_10) {
+        if (record->event.pressed) {
+            uint8_t slot = keycode - MACRO_PLAY_1;
+            // Stop any current playback before starting new one
+            if (macro_recorder_is_playing()) {
+                macro_recorder_stop_playback();
+            }
+            macro_recorder_play(slot);
+        }
+        return false;
+    }
+
+    if (keycode == MACRO_STOP) {
+        if (record->event.pressed) {
+            if (macro_recorder_is_recording()) {
+                uint8_t slot = macro_recorder_get_current_slot();
+                macro_recorder_stop_recording();
+                send_macro_state_to_slave(false, slot, 0);
+            }
+            macro_recorder_stop_playback();
+        }
+        return false;
+    }
+
+    if (keycode >= MACRO_CLEAR_1 && keycode <= MACRO_CLEAR_10) {
+        if (record->event.pressed) {
+            uint8_t slot = keycode - MACRO_CLEAR_1;
+            macro_recorder_clear(slot);
+            send_macro_state_to_slave(false, slot, 0);
+        }
+        return false;
+    }
+
+    // Record key events for macro recording
+    // Don't record macro control keys, layer switches, or transparent keys
+    if (macro_recorder_is_recording() &&
+        !(keycode >= MACRO_REC_1 && keycode <= MACRO_CLEAR_10) &&
+        !(keycode >= QK_MOMENTARY && keycode <= QK_MOMENTARY_MAX) &&  // MO() keys
+        !(keycode >= QK_LAYER_TAP && keycode <= QK_LAYER_TAP_MAX) &&  // LT() keys
+        !(keycode >= QK_LAYER_MOD && keycode <= QK_LAYER_MOD_MAX) &&  // Layer mod keys
+        keycode != KC_TRNS && keycode != KC_NO) {  // Transparent and no-op keys
+        if (record->event.pressed) {
+            macro_recorder_record_key_down(keycode, get_mods());
+            // Sync action count to slave
+            send_macro_state_to_slave(true, macro_recorder_get_current_slot(), macro_recorder_get_recorded_count());
+        } else {
+            macro_recorder_record_key_up(keycode, get_mods());
+            send_macro_state_to_slave(true, macro_recorder_get_current_slot(), macro_recorder_get_recorded_count());
+        }
+    }
+
     if (!process_vim_mode(keycode, record)) {
         return false;
     }

@@ -46,5 +46,9 @@ SRC += transactions/trackpad_pos_sync.c
 SRC += transactions/vim_mode_sync.c
 SRC += transactions/trackpad_shift_sync.c
 SRC += transactions/trackpad_dpi_sync.c
+SRC += transactions/macro_state_sync.c
+
+SRC += macros/macro_recorder.c
+SRC += display/macro-status/macro-status.c
 
 RGB_MATRIX_CUSTOM_USER = yes

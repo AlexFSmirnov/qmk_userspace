@@ -2,6 +2,7 @@
 RGB_MATRIX_EFFECT(REACTIVE_WHITE)
 #        ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 #include "enums.h"
+#include "../macros/macro_recorder.h"
 
 extern const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS];
 
@@ -174,6 +175,66 @@ static bool GAMING_LAYER(effect_params_t* params) {
     return rgb_matrix_check_finished_leds(led_max);
 }
 
+static bool MACRO_LAYER(effect_params_t* params) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    hsv_t on_hsv = {0, 0, 255};  // White for PLAY keys with macros
+    hsv_t off_hsv = rgb_matrix_config.hsv;  // Normal color for keys without macros
+    hsv_t recording_hsv = {0, 255, 255};  // Red for currently recording
+    hsv_t empty_hsv = {85, 255, 255};  // Green for empty REC slots
+    hsv_t has_content_hsv = {43, 255, 255};  // Yellow for REC slots with content (warning)
+
+    uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
+    bool is_recording = macro_recorder_is_recording();
+    uint8_t recording_slot = is_recording ? macro_recorder_get_current_slot() : 0;
+
+    for (uint8_t row = 0; row < 9; row++) {
+        for (uint8_t col = 0; col < 7; col++) {
+            uint8_t led = g_led_config.matrix_co[row][col];
+
+            uint16_t keycode = pgm_read_word(&keymaps[active_layer][row][col]);
+
+            hsv_t hsv = off_hsv;
+
+            // Check if this is a macro key
+            if (keycode >= MACRO_REC_1 && keycode <= MACRO_REC_10) {
+                uint8_t slot = keycode - MACRO_REC_1;
+                if (is_recording && slot == recording_slot) {
+                    // Red: Currently recording this slot
+                    hsv = recording_hsv;
+                } else if (macro_recorder_slot_has_content(slot)) {
+                    // Yellow: Has content (will overwrite)
+                    hsv = has_content_hsv;
+                } else {
+                    // Green: Empty, ready to record
+                    hsv = empty_hsv;
+                }
+            } else if (keycode >= MACRO_PLAY_1 && keycode <= MACRO_PLAY_10) {
+                uint8_t slot = keycode - MACRO_PLAY_1;
+                // PLAY keys: White if macro exists
+                if (macro_recorder_slot_has_content(slot)) {
+                    hsv = on_hsv;
+                }
+            } else if (keycode >= MACRO_CLEAR_1 && keycode <= MACRO_CLEAR_10) {
+                uint8_t slot = keycode - MACRO_CLEAR_1;
+                // CLEAR keys: Red when there's content to clear
+                if (macro_recorder_slot_has_content(slot)) {
+                    hsv = recording_hsv;  // Red to indicate destructive action
+                }
+            }
+
+            if (led >= led_min && led <= led_max) {
+                rgb_t rgb = rgb_matrix_hsv_to_rgb(hsv);
+                rgb_matrix_set_color(led, rgb.r, rgb.g, rgb.b);
+            }
+        }
+    }
+
+    set_underglow_color(off_hsv.h, off_hsv.s, 200);
+
+    return rgb_matrix_check_finished_leds(led_max);
+}
+
 bool REACTIVE_WHITE(effect_params_t* params) {
     uint8_t active_layer = get_highest_layer(layer_state | default_layer_state);
     if (active_layer == 0) {
@@ -186,6 +247,10 @@ bool REACTIVE_WHITE(effect_params_t* params) {
 
     if (active_layer == _MOUSE_KEYS) {
         return MOUSE_KEYS(params);
+    }
+
+    if (active_layer == _MACROS) {
+        return MACRO_LAYER(params);
     }
 
     return LAYER_COLUMNS(params);
