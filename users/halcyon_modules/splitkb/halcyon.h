@@ -4,6 +4,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include QMK_KEYBOARD_H
 
 typedef enum module {
     none,
